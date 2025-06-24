@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Historia_de_usuario</title>
+</head>
+<body>
+<h1>Historia de Usuario: Gestión de Inventario</h1>
+<h2>Descripción</h2>
+<blockquote>
+<p><strong>Como</strong> administrador de inventario,</p>
+<p><strong>Quiero</strong> recibir alertas automáticas cuando el stock de un producto esté por debajo del nivel mínimo,</p>
+<p><strong>Para que</strong> pueda reabastecer el inventario a tiempo y evitar la falta de productos en la tienda.</p>
+</blockquote>
+<h2>Criterios de Aceptación</h2>
+<ol>
+<li><strong>Notificación de Stock Bajo</strong>:
+<ul>
+<li>El sistema debe enviar una alerta cuando el stock de un producto sea menor o igual al nivel mínimo configurado.</li>
+<li>La alerta debe incluir el nombre del producto, la cantidad actual y el nivel mínimo.</li>
+</ul>
+</li>
+<li><strong>Configuración de Niveles Mínimos</strong>:
+<ul>
+<li>El administrador debe poder configurar el nivel mínimo de stock para cada producto.</li>
+<li>El nivel mínimo debe ser un valor numérico mayor que cero.</li>
+</ul>
+</li>
+<li><strong>Alertas en Tiempo Real</strong>:
+<ul>
+<li>Las alertas deben generarse en tiempo real cuando el stock se actualice (por ejemplo, después de una venta o un reabastecimiento).</li>
+<li>Las alertas deben ser visibles en el panel de control del administrador y enviarse por correo electrónico.</li>
+</ul>
+</li>
+<li><strong>Historial de Alertas</strong>:
+<ul>
+<li>El sistema debe mantener un historial de todas las alertas generadas, incluyendo la fecha, el producto y el nivel de stock en ese momento.</li>
+</ul>
+</li>
+<li><strong>Integración con Proveedores</strong>:
+<ul>
+<li>Si el producto está asociado a un proveedor, el sistema debe sugerir una orden de compra automática cuando se active la alerta de stock bajo.</li>
+</ul>
+</li>
+</ol>
+<h2>Escenarios de Prueba</h2>
+<div class="scenario">
+<h3>Escenario 1: Alerta de Stock Bajo</h3>
+<ul>
+<li><strong>Dado</strong> que el producto "Camiseta Azul" tiene un nivel mínimo de stock de 10 unidades,</li>
+<li><strong>Cuando</strong> el stock actual de "Camiseta Azul" se reduce a 5 unidades,</li>
+<li><strong>Entonces</strong> el sistema debe enviar una alerta indicando que el stock está por debajo del nivel mínimo.</li>
+</ul>
+</div>
+<div class="scenario">
+<h3>Escenario 2: Configuración de Nivel Mínimo</h3>
+<ul>
+<li><strong>Dado</strong> que el administrador está en la página de configuración de un producto,</li>
+<li><strong>Cuando</strong> el administrador establece el nivel mínimo de stock en 15 unidades,</li>
+<li><strong>Entonces</strong> el sistema debe guardar este valor y usarlo para futuras alertas.</li>
+</ul>
+</div>
+<div class="scenario">
+<h3>Escenario 3: Historial de Alertas</h3>
+<ul>
+<li><strong>Dado</strong> que se han generado alertas de stock bajo para varios productos,</li>
+<li><strong>Cuando</strong> el administrador accede al historial de alertas,</li>
+<li><strong>Entonces</strong> el sistema debe mostrar una lista de todas las alertas con la fecha, el producto y el nivel de stock en ese momento.</li>
+</ul>
+</div>
+<div class="scenario">
+<h3>Escenario 4: Sugerencia de Orden de Compra</h3>
+<ul>
+<li><strong>Dado</strong> que el producto "Zapatos Deportivos" tiene un proveedor asociado y su stock está por debajo del nivel mínimo,</li>
+<li><strong>Cuando</strong> se genera una alerta de stock bajo,</li>
+<li><strong>Entonces</strong> el sistema debe sugerir una orden de compra automática al proveedor.</li>
+</ul>
+</div>
+<h2>Beneficios</h2>
+<ul>
+<li><strong>Evita la falta de productos</strong>: Al recibir alertas tempranas, el administrador puede reabastecer el inventario antes de que se agoten los productos.</li>
+<li><strong>Mejora la eficiencia</strong>: Las alertas automáticas reducen la necesidad de revisiones manuales del inventario.</li>
+<li><strong>Optimiza la gestión de proveedores</strong>: La integración con proveedores agiliza el proceso de reabastecimiento.</li>
+</ul>
+<h2>Notas Adicionales</h2>
+<ul>
+<li><strong>Prioridad</strong>: Alta. La gestión eficiente del inventario es crítica para el éxito de un negocio de retail.</li>
+<li><strong>Dependencias</strong>: Integración con el sistema de ventas y el módulo de proveedores.</li>
+<li><strong>Riesgos</strong>: Si las alertas no se generan correctamente, podría haber falta de productos en la tienda.</li>
+</ul>
+<div class="note"> </div>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TDD_diseño_y_SOLID_II</title>
+</head>
+<body>
+<div class="tdd-solid-relationship">
+<h2>Relación entre las Pruebas de Fase Roja y los Principios SOLID</h2>
+<section class="introduction">
+<p>Las pruebas unitarias en la fase roja de TDD no solo validan el comportamiento esperado, sino que también guían el diseño del código hacia principios SOLID. Analicemos cómo cada prueba promueve estos principios.</p>
+</section>
+<section class="solid-principles">
+<div class="principle">
+<h3>1. Single Responsibility Principle (SRP)</h3>
+<div class="tdd-connection">
+<h4>Conexión con las pruebas:</h4>
+<p>Las pruebas enfocadas validan que cada método tenga una única responsabilidad.</p>
+<div class="example">
+<h5>Ejemplo en setMinimumStockLevel:</h5>
+<pre><code class="java">@Test
+void whenSetMinimuStockLevel_LevelIsSaved() {
+    // Configuración
+    ProductRepository productRepository = mock(ProductRepository.class);
+    ProductService productService = new ProductService(productRepository);
+    Product product = new Product("Camiseta Azul");
+    int minimumStockLevel = 15;
+
+    // Ejecución
+    productService.setMinimumStockLevel(product, minimumStockLevel);
+
+    // Validación
+    verify(productRepository).save(product);
+    assertEquals(minimumStockLevel, product.getMinimumStockLevel());
+}</code></pre>
+<p>Esta prueba valida que el método solo debe:</p>
+<ul>
+<li>Establecer el nivel mínimo de stock</li>
+<li>Guardar el producto</li>
+</ul>
+Si intentara hacer más cosas, la prueba sería más compleja.
+<p></p>
+</div>
+</div>
+</div>
+<div class="principle">
+<h3>2. Open/Closed Principle (OCP)</h3>
+<div class="tdd-connection">
+<h4>Conexión con las pruebas:</h4>
+<p>Las pruebas de validación preparan el código para extensión.</p>
+<div class="example">
+<h5>Pruebas de validación:</h5>
+<pre><code class="java">@Test
+void whenSetMinimuStockLevelWithInvalidValue_thenThrowException() {
+    ProductRepository productRepository = mock(ProductRepository.class);
+    ProductService productService = new ProductService(productRepository);
+    Product product = new Product("Camiseta Azul");
+    int invalidMinimumStockLevel = -10;
+    
+    assertThrows(IllegalArgumentException.class, 
+        () -&gt; productService.setMinimumStockLevel(product, invalidMinimumStockLevel));
+    
+    verify(productRepository, never()).save(product);
+}</code></pre>
+<p>Estas pruebas llevan a implementar validaciones de manera que nuevas reglas puedan añadirse sin modificar la lógica existente:</p>
+<pre><code class="java">// Diseño extensible para validaciones
+public void setMinimumStockLevel(Product product, int minimumStockLevel) {
+    validateMinimumStockLevel(minimumStockLevel); // Punto de extensión
+    product.setMinimumStockLevel(minimumStockLevel);
+    saveProduct(product);
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="principle">
+<h3>3. Liskov Substitution Principle (LSP)</h3>
+<div class="tdd-connection">
+<h4>Conexión con las pruebas:</h4>
+<p>Las pruebas definen contratos que deben cumplir todas las implementaciones.</p>
+<div class="example">
+<h5>Pruebas para saveProduct:</h5>
+<pre><code class="java">@Test
+void whenSaveProductWithNegativeStock_thenThrowException() {
+    ProductRepository productRepository = Mockito.mock(ProductRepository.class);
+    ProductService productService = new ProductService(productRepository);
+    Product invalidProduct = new Product("Camiseta", -10);
+    
+    assertThrows(IllegalArgumentException.class, () -&gt; {
+        productService.saveProduct(invalidProduct);
+    });
+    
+    verify(productRepository, never()).save(any());
+}</code></pre>
+<p>Cualquier implementación de ProductRepository debe cumplir con:</p>
+<ul>
+<li>No guardar productos con stock negativo</li>
+<li>Lanzar IllegalArgumentException en estos casos</li>
+</ul>
+<p></p>
+</div>
+</div>
+</div>
+<div class="principle">
+<h3>4. Interface Segregation Principle (ISP)</h3>
+<div class="tdd-connection">
+<h4>Conexión con las pruebas:</h4>
+<p>Los mocks en las pruebas revelan interfaces demasiado grandes.</p>
+<div class="example">
+<h5>Análisis de ProductRepository:</h5>
+<pre><code class="java">// Uso en pruebas muestra qué métodos se necesitan realmente
+verify(productRepository).save(product);
+verify(productRepository, never()).save(any());</code></pre>
+<p>Si ProductRepository tuviera muchos métodos no usados, las pruebas nos mostrarían que necesitamos segregar la interfaz.</p>
+</div>
+</div>
+</div>
+<div class="principle">
+<h3>5. Dependency Inversion Principle (DIP)</h3>
+<div class="tdd-connection">
+<h4>Conexión con las pruebas:</h4>
+<p>El uso de mocks demuestra la inversión de dependencias.</p>
+<div class="example">
+<h5>Inyección de dependencias:</h5>
+<pre><code class="java">// En todas las pruebas:
+ProductRepository productRepository = mock(ProductRepository.class);
+ProductService productService = new ProductService(productRepository);</code></pre>
+<p>Este diseño:</p>
+<ul>
+<li>Depende de la abstracción ProductRepository</li>
+<li>Permite sustituir la implementación real por un mock</li>
+<li>Facilita el testing y los cambios futuros</li>
+</ul>
+<p></p>
+</div>
+</div>
+</div>
+</section>
+<section class="conclusion">
+<h3>Conclusión: Las Pruebas Guían el Diseño SOLID</h3>
+<p>Las pruebas en fase roja no solo verifican comportamiento, sino que también:</p>
+<ul>
+<li><strong>Revelan responsabilidades únicas</strong> (SRP) mediante pruebas enfocadas</li>
+<li><strong>Preparan para extensión</strong> (OCP) con pruebas de validación</li>
+<li><strong>Definen contratos claros</strong> (LSP) que deben cumplir las implementaciones</li>
+<li><strong>Muestran interfaces ideales</strong> (ISP) a través de los mocks usados</li>
+<li><strong>Requieren inversión de dependencias</strong> (DIP) para poder testear</li>
+</ul>
+<p>Al escribir pruebas primero, el diseño naturalmente evoluciona hacia estos principios fundamentales.</p>
+</section>
+</div>
+</body>
+</html>

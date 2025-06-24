@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Stubs_Argument_Matchers._Nuevo_requerimiento._Fase_Roja</title>
+</head>
+<body>
+<div class="tdd-implementation">
+<h2>Implementación TDD para Incrementar Stock </h2>
+<section class="acceptance-criteria">
+<h3>Criterio de Aceptación</h3>
+<p><strong>El sistema debe permitir incrementar el stock de un producto existente</strong></p>
+</section>
+<section class="tdd-phase">
+<h3>Fase Roja: Prueba Fallida con Mockito clásico</h3>
+<div class="test-code">
+<h4>Prueba Unitaria (ProductServiceTest)</h4>
+<button class="copy-button">Copiar</button>
+<pre id="test-code"><code class="java">package com.store.domain.service;
+
+import com.store.domain.model.Product;
+import com.store.domain.port.ProductRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class ProductServiceTest {
+
+    @Mock
+    private ProductRepository productRepository;
+    
+    @Test
+    void incrementStock_ValidIncrement_ShouldUpdateProductStock() {
+        // Arrange
+        String productName = "Camiseta Azul";
+        int initialStock = 10;
+        int increment = 5;
+        Product product = new Product(productName, initialStock);
+        
+        ProductService productService = new ProductService(productRepository);
+        doReturn(product).when(productRepository).findByName(productName);
+        
+        // Act
+        productService.incrementStock(productName, increment);
+        
+        // Assert
+        assertEquals(initialStock + increment, product.getStock(), 
+            "El stock debería incrementarse correctamente");
+        verify(productRepository).findByName(productName);
+        verify(productRepository).save(product);
+    }
+    
+    @Test
+    void incrementStock_NegativeIncrement_ShouldThrowException() {
+        // Arrange
+        String productName = "Camiseta Azul";
+        int increment = -5;
+        ProductService productService = new ProductService(productRepository);
+        
+        // Act &amp; Assert
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -&gt; productService.incrementStock(productName, increment),
+            "Debería lanzar IllegalArgumentException"
+        );
+        
+        assertEquals("El incremento no puede ser negativo", exception.getMessage());
+        verify(productRepository, never()).findByName(anyString());
+        verify(productRepository, never()).save(any(Product.class));
+    }
+    
+    @Test
+    void incrementStock_ProductNotFound_ShouldThrowException() {
+        // Arrange
+        String productName = "Producto Inexistente";
+        int increment = 5;
+        ProductService productService = new ProductService(productRepository);
+        doReturn(null).when(productRepository).findByName(productName);
+        
+        // Act &amp; Assert
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -&gt; productService.incrementStock(productName, increment),
+            "Debería lanzar IllegalArgumentException"
+        );
+        
+        assertEquals("Producto no encontrado", exception.getMessage());
+        verify(productRepository).findByName(productName);
+        verify(productRepository, never()).save(any(Product.class));
+    }
+}</code></pre>
+</div>
+<div class="service-code">
+<h4>ProductService (Incompleto para fase roja)</h4>
+<button class="copy-button">Copiar</button>
+<pre id="service-code"><code class="java">package com.store.domain.service;
+
+import com.store.domain.port.ProductRepository;
+import com.store.domain.model.Product;
+
+public class ProductService {
+    private final ProductRepository productRepository;
+
+    public ProductService(ProductRepository productRepository){
+        this.productRepository = productRepository;
+    }
+
+    // Método a implementar (actualmente no existe)
+    public void incrementStock(String productName, int increment) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    // Métodos existentes...
+    public void saveProduct(Product product) {
+        if (product.getStock() &lt; 0){
+            throw new IllegalArgumentException("El stock no debe ser negativo.");
+        }
+        productRepository.save(product);
+    }
+
+    public void setMinimumStockLevel(Product product, int minimumStockLevel){
+        validateMinimumStockLevel(minimumStockLevel);
+        product.setMinimumStockLevel(minimumStockLevel);
+        saveProduct(product);
+    }
+
+    private void validateMinimumStockLevel(int minimumStockLevel){
+        if (minimumStockLevel &lt;= 0){
+            throw new IllegalArgumentException("El nivel mínimo debe ser mayor a cero.");
+        }
+    }
+}</code></pre>
+</div>
+<div class="repository-interface">
+<h4>Interfaz ProductRepository (Ampliada)</h4>
+<button class="copy-button">Copiar</button>
+<pre id="repository-code"><code class="java">package com.store.domain.port;
+
+import com.store.domain.model.Product;
+
+public interface ProductRepository {
+    void save(Product product);
+    Product findByName(String name);
+}</code></pre>
+</div>
+</section>
+<section class="mockito-explanation">
+<table>
+<tbody>
+<tr>
+<th> </th>
+<th> </th>
+<th> </th>
+</tr>
+<tr>
+<td> </td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td> </td>
+<td> </td>
+<td> </td>
+</tr>
+</tbody>
+</table>
+</section>
+</div>
+<p>
+<script>
+function copyCode(elementId) {
+    const codeElement = document.getElementById(elementId);
+    const range = document.createRange();
+    range.selectNode(codeElement);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand('copy');
+    window.getSelection().removeAllRanges();
+    
+    // Feedback visual
+    const button = event.target;
+    button.textContent = '¡Copiado!';
+    setTimeout(() => {
+        button.textContent = 'Copiar';
+    }, 2000);
+}
+</script>
+</p>
+</body>
+</html>

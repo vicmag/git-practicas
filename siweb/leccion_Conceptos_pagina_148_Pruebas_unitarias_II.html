@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Pruebas_unitarias_II</title>
+</head>
+<body>
+<div class="tutorial-container">
+<h2>Tutorial Básico de Pruebas Unitarias</h2>
+<section class="fundamentos">
+<h3>1. Fundamentos de Pruebas Unitarias</h3>
+<p>Una prueba unitaria verifica el comportamiento de una <strong>unidad de código</strong> (método, clase) de forma <strong>aislada</strong>, <strong>rápida</strong> y <strong>repetible</strong>.</p>
+<div class="ejemplo">
+<h4>Ejemplo Básico:</h4>
+<pre><code class="java">// Clase a probar
+public class Calculadora {
+    public int sumar(int a, int b) {
+        return a + b;
+    }
+}
+
+// Prueba unitaria
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+
+class CalculadoraTest {
+    @Test
+    void sumar_DosNumerosPositivos_RetornaSuma() {
+        // Arrange (preparar)
+        Calculadora calc = new Calculadora();
+        
+        // Act (actuar)
+        int resultado = calc.sumar(3, 5);
+        
+        // Assert (verificar)
+        assertEquals(8, resultado);
+    }
+}</code></pre>
+</div>
+</section>
+<section class="estructura">
+<h3>2. Estructura AAA (Arrange-Act-Assert)</h3>
+<p>Toda prueba unitaria bien estructurada sigue este patrón:</p>
+<div class="paso">
+<h4>a) Arrange (Preparación)</h4>
+<p>Configura el escenario de prueba:</p>
+<pre><code class="java">ProductRepository repoMock = mock(ProductRepository.class);
+ProductService service = new ProductService(repoMock);
+Product producto = new Product("Camiseta", 10);</code></pre>
+</div>
+<div class="paso">
+<h4>b) Act (Ejecución)</h4>
+<p>Ejecuta el método bajo prueba:</p>
+<pre><code class="java">service.setMinimumStockLevel(producto, 15);</code></pre>
+</div>
+<div class="paso">
+<h4>c) Assert (Verificación)</h4>
+<p>Comprueba el resultado esperado:</p>
+<pre><code class="java">assertEquals(15, producto.getMinimumStockLevel());
+verify(repoMock).save(producto);</code></pre>
+</div>
+</section>
+<section class="mockito">
+<h3>3. Uso Básico de Mockito</h3>
+<p>Mockito permite crear <strong>objetos simulados</strong> para aislar la unidad bajo prueba.</p>
+<div class="ejemplo">
+<h4>a) Crear un mock:</h4>
+<pre><code class="java">ProductRepository repoMock = mock(ProductRepository.class);</code></pre>
+</div>
+<div class="ejemplo">
+<h4>b) Configurar comportamiento:</h4>
+<pre><code class="java">when(repoMock.findByName("Camiseta"))
+    .thenReturn(new Product("Camiseta", 10));</code></pre>
+</div>
+<div class="ejemplo">
+<h4>c) Verificar interacciones:</h4>
+<pre><code class="java">verify(repoMock).save(any(Product.class));</code></pre>
+</div>
+</section>
+<section class="casos-prueba">
+<h3>4. Tipos Comunes de Pruebas</h3>
+<div class="caso">
+<h4>Prueba de camino feliz:</h4>
+<pre><code class="java">@Test
+void setMinimumStockLevel_ValorValido_ActualizaStock() {
+    ProductRepository repoMock = mock(ProductRepository.class);
+    ProductService service = new ProductService(repoMock);
+    Product producto = new Product("Camiseta", 10);
+    
+    service.setMinimumStockLevel(producto, 15);
+    
+    assertEquals(15, producto.getMinimumStockLevel());
+}</code></pre>
+</div>
+<div class="caso">
+<h4>Prueba de validación:</h4>
+<pre><code class="java">@Test
+void setMinimumStockLevel_ValorCero_LanzaExcepcion() {
+    ProductRepository repoMock = mock(ProductRepository.class);
+    ProductService service = new ProductService(repoMock);
+    Product producto = new Product("Camiseta", 10);
+    
+    assertThrows(IllegalArgumentException.class, () -&gt; {
+        service.setMinimumStockLevel(producto, 0);
+    });
+}</code></pre>
+</div>
+</section>
+<section class="consejos">
+<h3>5. Consejos para Buenas Pruebas</h3>
+<ul>
+<li><strong>Nombres descriptivos:</strong> <code>metodoPrueba_condicion_esperado</code></li>
+<li><strong>Una sola responsabilidad:</strong> Cada prueba verifica un solo comportamiento</li>
+<li><strong>Independencia:</strong> Las pruebas no deben depender entre sí</li>
+<li><strong>Rapidez:</strong> Deben ejecutarse en milisegundos</li>
+<li><strong>Mocks para dependencias:</strong> Base de datos, servicios externos, etc.</li>
+</ul>
+</section>
+</div>
+</body>
+</html>

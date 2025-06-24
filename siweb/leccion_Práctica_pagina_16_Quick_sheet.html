@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Quick_sheet</title>
+</head>
+<body>
+<h1>Guía de TDD en Java con JUnit, Mockito y Arquitectura Hexagonal</h1>
+<h2>Historia de Usuario</h2>
+<blockquote>
+<p><strong>Como</strong> administrador de tienda,</p>
+<p><strong>Quiero</strong> recibir alertas de inventario bajo de los productos</p>
+<p><strong>Para que</strong> pueda reabastecer el almacén antes de que acabe el producto.</p>
+</blockquote>
+<h2>Arquitectura Hexagonal</h2>
+<p>La arquitectura hexagonal divide la aplicación en tres capas principales:</p>
+<ul>
+<li><strong>Capa de Dominio</strong>: Contiene la lógica de negocio y las entidades.</li>
+<li><strong>Capa de Aplicación</strong>: Orquesta los casos de uso y conecta el dominio con la infraestructura.</li>
+<li><strong>Capa de Infraestructura</strong>: Implementa detalles técnicos como bases de datos, APIs, etc.</li>
+</ul>
+<h2>Implementación Paso a Paso con TDD</h2>
+<h3>Paso 1: Configuración del Proyecto</h3>
+<p>Crea una estructura de carpetas para el proyecto:</p>
+<pre>store-manager/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   ├── com/
+│   │   │   │   └── storemanager/
+│   │   │   │       ├── domain/
+│   │   │   │       │   ├── model/
+│   │   │   │       │   ├── service/
+│   │   │   │       │   └── repository/
+│   │   │   │       ├── application/
+│   │   │   │       └── infrastructure/
+│   │   │   │           ├── repository/
+│   │   │   │           └── web/
+│   │   └── resources/
+│   └── test/
+│       ├── java/
+│       │   ├── com/
+│       │   │   └── storemanager/
+│       │   │       ├── domain/
+│       │   │       └── application/
+│       └── resources/
+├── pom.xml
+└── README.md
+</pre>
+<p>Configura el archivo <code>pom.xml</code> para incluir las dependencias de JUnit y Mockito:</p>
+<pre><code>&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;
+        &lt;artifactId&gt;junit-jupiter-api&lt;/artifactId&gt;
+        &lt;version&gt;5.9.3&lt;/version&gt;
+        &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.mockito&lt;/groupId&gt;
+        &lt;artifactId&gt;mockito-core&lt;/artifactId&gt;
+        &lt;version&gt;5.3.1&lt;/version&gt;
+        &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+</code></pre>
+<h3>Paso 2: Fase Roja (Escribir una Prueba que Falle)</h3>
+<p>Crea una prueba unitaria para verificar la lógica de alertas de bajo stock.</p>
+<pre><code>package com.storemanager.domain.service;
+
+import com.storemanager.domain.model.Product;
+import com.storemanager.domain.repository.ProductRepository;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+
+class LowStockAlertServiceTest {
+
+    @Test
+    void testCheckLowStock_WhenStockIsLow_ReturnsTrue() {
+        // Arrange
+        Product product = new Product("1", "Product A", 5, 10); // Stock bajo
+        ProductRepository mockRepository = Mockito.mock(ProductRepository.class);
+        when(mockRepository.findById("1")).thenReturn(product);
+
+        LowStockAlertService service = new LowStockAlertService(mockRepository);
+
+        // Act
+        boolean isLowStock = service.checkLowStock("1");
+
+        // Assert
+        assertTrue(isLowStock);
+    }
+}
+</code></pre>
+<h3>Paso 3: Fase Verde (Implementar la Lógica)</h3>
+<p>Implementa la lógica en la capa de dominio para que la prueba pase.</p>
+<pre><code>package com.storemanager.domain.model;
+
+public class Product {
+    private String id;
+    private String name;
+    private int currentStock;
+    private int lowStockThreshold;
+
+    public Product(String id, String name, int currentStock, int lowStockThreshold) {
+        this.id = id;
+        this.name = name;
+        this.currentStock = currentStock;
+        this.lowStockThreshold = lowStockThreshold;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public int getCurrentStock() {
+        return currentStock;
+    }
+
+    public int getLowStockThreshold() {
+        return lowStockThreshold;
+    }
+}
+</code></pre>
+<pre><code>package com.storemanager.domain.repository;
+
+import com.storemanager.domain.model.Product;
+
+public interface ProductRepository {
+    Product findById(String id);
+}
+</code></pre>
+<pre><code>package com.storemanager.domain.service;
+
+import com.storemanager.domain.model.Product;
+import com.storemanager.domain.repository.ProductRepository;
+
+public class LowStockAlertService {
+    private final ProductRepository productRepository;
+
+    public LowStockAlertService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
+
+    public boolean checkLowStock(String productId) {
+        Product product = productRepository.findById(productId);
+        return product.getCurrentStock() &lt;= product.getLowStockThreshold();
+    }
+}
+</code></pre>
+<h3>Paso 4: Refactorización</h3>
+<p>Mejora el código para que sea más legible y mantenible.</p>
+<pre><code>public boolean checkLowStock(String productId) {
+    Product product = productRepository.findById(productId);
+    return isLowStock(product);
+}
+
+private boolean isLowStock(Product product) {
+    return product.getCurrentStock() &lt;= product.getLowStockThreshold();
+}
+</code></pre>
+<h3>Paso 5: Pruebas Adicionales</h3>
+<p>Agrega más pruebas para cubrir otros escenarios.</p>
+<pre><code>@Test
+void testCheckLowStock_WhenStockIsNotLow_ReturnsFalse() {
+    // Arrange
+    Product product = new Product("1", "Product A", 15, 10); // Stock no bajo
+    ProductRepository mockRepository = Mockito.mock(ProductRepository.class);
+    when(mockRepository.findById("1")).thenReturn(product);
+
+    LowStockAlertService service = new LowStockAlertService(mockRepository);
+
+    // Act
+    boolean isLowStock = service.checkLowStock("1");
+
+    // Assert
+    assertFalse(isLowStock);
+}
+
+@Test
+void testCheckLowStock_WhenProductDoesNotExist_ReturnsFalse() {
+    // Arrange
+    ProductRepository mockRepository = Mockito.mock(ProductRepository.class);
+    when(mockRepository.findById("1")).thenReturn(null);
+
+    LowStockAlertService service = new LowStockAlertService(mockRepository);
+
+    // Act
+    boolean isLowStock = service.checkLowStock("1");
+
+    // Assert
+    assertFalse(isLowStock);
+}
+</code></pre>
+<h2>Principios SOLID</h2>
+<ul>
+<li><strong>Single Responsibility Principle (SRP)</strong>: Cada clase tiene una única responsabilidad. Por ejemplo, <code>LowStockAlertService</code> solo se encarga de verificar el stock bajo.</li>
+<li><strong>Open/Closed Principle (OCP)</strong>: El código está abierto para extensión pero cerrado para modificación. Por ejemplo, se pueden agregar nuevos tipos de alertas sin modificar el código existente.</li>
+<li><strong>Liskov Substitution Principle (LSP)</strong>: Las subclases pueden reemplazar a sus clases base sin alterar el comportamiento. Por ejemplo, cualquier implementación de <code>ProductRepository</code> puede usarse en <code>LowStockAlertService</code>.</li>
+<li><strong>Interface Segregation Principle (ISP)</strong>: Las interfaces son específicas y no obligan a implementar métodos innecesarios. Por ejemplo, <code>ProductRepository</code> solo define el método <code>findById</code>.</li>
+<li><strong>Dependency Inversion Principle (DIP)</strong>: Las clases de alto nivel no dependen de clases de bajo nivel, sino de abstracciones. Por ejemplo, <code>LowStockAlertService</code> depende de la interfaz <code>ProductRepository</code>, no de una implementación concreta.</li>
+</ul>
+<h2>Conclusión</h2>
+<p>Con esta guía, has implementado TDD en Java con JUnit, Mockito y una arquitectura hexagonal para la historia de usuario de alertas de bajo stock. Siguiendo las fases de TDD (Rojo, Verde, Refactorización), has construido una solución robusta y mantenible.</p>
+<div class="note">
+<p><strong>Nota:</strong> Asegúrate de ejecutar las pruebas en cada fase con el comando <code>mvn test</code>.</p>
+</div>
+</body>
+</html>

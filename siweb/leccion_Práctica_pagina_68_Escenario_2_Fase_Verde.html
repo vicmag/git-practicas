@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Escenario_2_Fase_Verde</title>
+</head>
+<body>
+<h1>Prueba Unitaria - Escenario de Prueba 2 (Fase Green TDD)</h1>
+<p>Hemos implementado la lógica necesaria en el servicio de dominio para que la prueba unitaria pase. Ahora estamos en la fase <strong>Green</strong> de <strong>TDD</strong>.</p>
+<h2>Estructura de Carpetas</h2>
+<pre><code>
+src/
+├── main/
+│   ├── java/
+│   │   └── com/
+│   │       └── store/
+│   │           ├── application/          # Capa de aplicación
+│   │           │   └── ProductController.java  # Controlador REST (no incluido en el ejemplo)
+│   │           ├── domain/               # Capa de dominio
+│   │           │   ├── model/
+│   │           │   │   └── Product.java  # Entidad de dominio
+│   │           │   ├── service/
+│   │           │   │   └── ProductService.java  # Servicio de dominio
+│   │           │   └── port/
+│   │           │       └── ProductRepository.java  # Puerto (interfaz de repositorio)
+│   │           └── infrastructure/       # Capa de infraestructura
+│   │               └── persistence/
+│   │                   └── ProductRepositoryImpl.java  # Implementación del repositorio (no incluido en el ejemplo)
+│   ├── resources/
+│   │   └── application.properties        # Configuración de la aplicación
+├── test/
+│   ├── java/
+│   │   └── com/
+│   │       └── store/
+│   │           └── domain/
+│   │               └── service/
+│   │                   └── ProductServiceTest.java  # Prueba unitaria
+│   └── resources/
+│       └── application-test.properties   # Configuración para pruebas
+    </code></pre>
+<h2>Código de la Prueba Unitaria (Fase Green)</h2>
+<p><button class="copy-button">Copiar Código de Prueba</button></p>
+<pre id="test-code"><code>
+package com.store.domain.service;
+
+import com.store.domain.model.Product;
+import com.store.domain.port.ProductRepository;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class ProductServiceTest {
+
+    @Test
+    void whenSetMinimumStockLevel_thenLevelIsSaved() {
+        // Arrange
+        ProductRepository productRepository = mock(ProductRepository.class);
+        ProductService productService = new ProductService(productRepository);
+        Product product = new Product("Camiseta Azul", 20);
+        int newMinimumStockLevel = 15;
+
+        // Act
+        productService.setMinimumStockLevel(product, newMinimumStockLevel);
+
+        // Assert
+        verify(productRepository).save(product);
+        assertEquals(newMinimumStockLevel, product.getMinimumStockLevel());
+    }
+}
+    </code></pre>
+<h2>Implementación del Servicio de Dominio (Fase Green)</h2>
+<p><button class="copy-button">Copiar Implementación del Servicio</button></p>
+<pre id="service-code"><code>
+// ProductService.java (Servicio de Dominio)
+package com.store.domain.service;
+
+import com.store.domain.model.Product;
+import com.store.domain.port.ProductRepository;
+
+public class ProductService {
+    private final ProductRepository productRepository;
+
+    public ProductService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
+
+    public void setMinimumStockLevel(Product product, int minimumStockLevel) {
+        // Validar que el nivel mínimo sea mayor que cero
+        if (minimumStockLevel &lt;= 0) {
+            throw new IllegalArgumentException("El nivel mínimo de stock debe ser mayor que cero.");
+        }
+
+        // Establecer el nivel mínimo de stock
+        product.setMinimumStockLevel(minimumStockLevel);
+
+        // Guardar el producto actualizado en el repositorio
+        productRepository.save(product);
+    }
+}
+    </code></pre>
+<h2>Interfaces y Clases del Dominio</h2>
+<p><button class="copy-button">Copiar Interfaces y Clases</button></p>
+<pre id="interface-code"><code>
+// Product.java (Modelo de Dominio)
+package com.store.domain.model;
+
+public class Product {
+    private String name;
+    private int stock;
+    private int minimumStockLevel;
+
+    public Product(String name, int stock) {
+        this.name = name;
+        this.stock = stock;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public int getMinimumStockLevel() {
+        return minimumStockLevel;
+    }
+
+    public void setMinimumStockLevel(int minimumStockLevel) {
+        this.minimumStockLevel = minimumStockLevel;
+    }
+}
+
+// ProductRepository.java (Puerto de Dominio)
+package com.store.domain.port;
+
+import com.store.domain.model.Product;
+
+public interface ProductRepository {
+    void save(Product product);
+}
+    </code></pre>
+<h2>Uso de SOLID</h2>
+<ul>
+<li><strong>Single Responsibility Principle (SRP)</strong>: `ProductService` tiene una única responsabilidad: gestionar la lógica de negocio relacionada con el stock.</li>
+<li><strong>Open/Closed Principle (OCP)</strong>: El diseño permite extender el comportamiento (por ejemplo, añadir validaciones adicionales) sin modificar el código existente.</li>
+<li><strong>Liskov Substitution Principle (LSP)</strong>: Las implementaciones de `ProductRepository` pueden ser sustituidas sin afectar el comportamiento del sistema.</li>
+<li><strong>Interface Segregation Principle (ISP)</strong>: `ProductRepository` define una interfaz específica para guardar productos, sin imponer métodos innecesarios.</li>
+<li><strong>Dependency Inversion Principle (DIP)</strong>: `ProductService` depende de la abstracción `ProductRepository`, no de una implementación concreta.</li>
+</ul>
+<h2>Fase Green de TDD</h2>
+<p>En esta fase, hemos implementado la lógica en `ProductService` para que la prueba unitaria pase. La validación del nivel mínimo de stock y el guardado del producto en el repositorio están ahora completos.</p>
+<p>
+<script>
+        function copyCode(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const textArea = document.createElement("textarea");
+            textArea.value = codeElement.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('Código copiado al portapapeles');
+        }
+    </script>
+</p>
+</body>
+</html>

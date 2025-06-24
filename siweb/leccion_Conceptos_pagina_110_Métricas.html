@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Métricas</title>
+</head>
+<body>
+<h1>Métricas comunes en Sonar relacionadas con SOLID</h1>
+<p>SonarQube es una herramienta que ayuda a medir la calidad del código. Aquí te presentamos las métricas más comunes que están relacionadas con los principios SOLID:</p>
+<h2>1. Principio de Responsabilidad Única (SRP)</h2>
+<ul>
+<li><strong>Métrica:</strong> Complejidad Ciclomática (Cyclomatic Complexity).</li>
+<li><strong>Descripción:</strong> Mide la cantidad de caminos independientes en un método. Un valor alto puede indicar que una clase o método tiene demasiadas responsabilidades.</li>
+<li><strong>Relación con SOLID:</strong> Ayuda a identificar métodos o clases que violan el principio de responsabilidad única.</li>
+</ul>
+<h2>2. Principio de Abierto/Cerrado (OCP)</h2>
+<ul>
+<li><strong>Métrica:</strong> Número de violaciones de código duplicado (Duplicated Lines).</li>
+<li><strong>Descripción:</strong> Mide la cantidad de líneas de código duplicadas. Un valor alto puede indicar que el código no está diseñado para ser extendido sin modificación.</li>
+<li><strong>Relación con SOLID:</strong> El código duplicado sugiere que el principio de abierto/cerrado no se está siguiendo adecuadamente.</li>
+</ul>
+<h2>3. Principio de Sustitución de Liskov (LSP)</h2>
+<ul>
+<li><strong>Métrica:</strong> Número de violaciones de herencia (Inheritance Depth).</li>
+<li><strong>Descripción:</strong> Mide la profundidad de la jerarquía de herencia. Una jerarquía muy profunda puede indicar problemas con el principio de sustitución de Liskov.</li>
+<li><strong>Relación con SOLID:</strong> Ayuda a identificar clases que no pueden ser sustituidas por sus subclases sin alterar el comportamiento del programa.</li>
+</ul>
+<h2>4. Principio de Segregación de Interfaces (ISP)</h2>
+<ul>
+<li><strong>Métrica:</strong> Número de métodos por interfaz (Methods per Interface).</li>
+<li><strong>Descripción:</strong> Mide la cantidad de métodos definidos en una interfaz. Un número alto puede indicar que la interfaz no está segregada adecuadamente.</li>
+<li><strong>Relación con SOLID:</strong> Ayuda a identificar interfaces que violan el principio de segregación de interfaces.</li>
+</ul>
+<h2>5. Principio de Inversión de Dependencias (DIP)</h2>
+<ul>
+<li><strong>Métrica:</strong> Acoplamiento entre clases (Coupling Between Objects).</li>
+<li><strong>Descripción:</strong> Mide el grado de dependencia entre clases. Un valor alto puede indicar que las clases no están siguiendo el principio de inversión de dependencias.</li>
+<li><strong>Relación con SOLID:</strong> Ayuda a identificar clases que dependen de implementaciones concretas en lugar de abstracciones.</li>
+</ul>
+<h2>Conclusión</h2>
+<p>Estas métricas son útiles para evaluar cómo se están aplicando los principios SOLID en tu código. Monitorearlas en SonarQube te ayudará a mantener un diseño de software limpio, modular y fácil de mantener.</p>
+</body>
+</html>

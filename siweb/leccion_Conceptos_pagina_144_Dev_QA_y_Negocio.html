@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dev_QA_y_Negocio</title>
+</head>
+<body>
+<div class="tdd-collaboration">
+<h2>Colaboración Interáreas en Proyectos con TDD</h2>
+<section class="roles">
+<h3>Roles y Responsabilidades en TDD</h3>
+<div class="role-card business">
+<h4>Área de Negocio</h4>
+<div class="responsibilities">
+<h5>Responsabilidades:</h5>
+<ul>
+<li>Definir historias de usuario claras y completas</li>
+<li>Especificar criterios de aceptación detallados</li>
+<li>Participar en la priorización de features</li>
+<li>Validar que los tests reflejen los requisitos del negocio</li>
+</ul>
+</div>
+<div class="collaboration">
+<h5>Colaboración con:</h5>
+<ul>
+<li><strong>QA:</strong> Compartir conocimiento del dominio para diseño de tests</li>
+<li><strong>Desarrollo:</strong> Aclarar requisitos y reglas de negocio</li>
+</ul>
+</div>
+</div>
+<div class="role-card qa">
+<h4>Área de QA</h4>
+<div class="responsibilities">
+<h5>Responsabilidades:</h5>
+<ul>
+<li>Asesorar en el diseño de tests unitarios y de integración</li>
+<li>Definir estrategias de automatización</li>
+<li>Validar la cobertura de pruebas</li>
+<li>Garantizar la calidad del pipeline CI/CD</li>
+</ul>
+</div>
+<div class="collaboration">
+<h5>Colaboración con:</h5>
+<ul>
+<li><strong>Negocio:</strong> Traducir requisitos a casos de prueba</li>
+<li><strong>Desarrollo:</strong> Pair programming en tests complejos</li>
+</ul>
+</div>
+</div>
+<div class="role-card dev">
+<h4>Área de Desarrollo</h4>
+<div class="responsibilities">
+<h5>Responsabilidades:</h5>
+<ul>
+<li>Implementar tests unitarios antes del código (fase roja)</li>
+<li>Desarrollar código que pase los tests (fase verde)</li>
+<li>Refactorizar manteniendo los tests pasando</li>
+<li>Garantizar la mantenibilidad del código</li>
+</ul>
+</div>
+<div class="collaboration">
+<h5>Colaboración con:</h5>
+<ul>
+<li><strong>Negocio:</strong> Validar entendimiento de requisitos</li>
+<li><strong>QA:</strong> Integrar pruebas en el pipeline CI</li>
+</ul>
+</div>
+</div>
+</section>
+<section class="workflow">
+<h3>Flujo de Trabajo Colaborativo</h3>
+<div class="workflow-step">
+<div class="step-number">1</div>
+<div class="step-content">
+<h4>Definición de Requisitos</h4>
+<p><strong>Negocio + QA + Desarrollo</strong> trabajan juntos para:</p>
+<ul>
+<li>Refinar historias de usuario</li>
+<li>Definir criterios de aceptación testables</li>
+<li>Establecer Definition of Done</li>
+</ul>
+</div>
+</div>
+<div class="workflow-step">
+<div class="step-number">2</div>
+<div class="step-content">
+<h4>Diseño de Pruebas</h4>
+<p><strong>QA + Desarrollo</strong> colaboran para:</p>
+<ul>
+<li>Crear tests unitarios basados en criterios de aceptación</li>
+<li>Definir casos límite y escenarios alternativos</li>
+<li>Establecer estándares de testing</li>
+</ul>
+</div>
+</div>
+<div class="workflow-step">
+<div class="step-number">3</div>
+<div class="step-content">
+<h4>Implementación TDD</h4>
+<p><strong>Desarrollo</strong> ejecuta el ciclo TDD:</p>
+<ol>
+<li>Escribe test fallido (Rojo)</li>
+<li>Implementa código mínimo para pasar test (Verde)</li>
+<li>Refactoriza manteniendo tests pasando</li>
+</ol>
+<p><strong>QA</strong> revisa cobertura y calidad de pruebas</p>
+</div>
+</div>
+<div class="workflow-step">
+<div class="step-number">4</div>
+<div class="step-content">
+<h4>Validación y Retroalimentación</h4>
+<p><strong>Negocio</strong> valida que los tests cubren los requisitos</p>
+<p><strong>QA</strong> ejecuta pruebas de integración y regresión</p>
+<p><strong>Todos</strong> participan en retrospectivas para mejorar el proceso</p>
+</div>
+</div>
+</section>
+<section class="benefits">
+<h3>Beneficios de esta Colaboración</h3>
+<div class="benefits-grid">
+<div class="benefit-card">
+<h4>Calidad Incrementada</h4>
+<p>Detección temprana de errores y requisitos ambiguos</p>
+</div>
+<div class="benefit-card">
+<h4>Alineación Continua</h4>
+<p>Todos comparten el mismo entendimiento del producto</p>
+</div>
+<div class="benefit-card">
+<h4>Documentación Viva</h4>
+<p>Los tests sirven como especificación ejecutable</p>
+</div>
+<div class="benefit-card">
+<h4>Reducción de Redespliegues</h4>
+<p>Menos bugs llegan a producción gracias a las pruebas tempranas</p>
+</div>
+</div>
+</section>
+</div>
+</body>
+</html>

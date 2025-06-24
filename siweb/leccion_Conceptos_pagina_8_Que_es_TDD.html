@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Que_es_TDD</title>
+</head>
+<body>
+<h1>TDD: Beneficios, Necesidad y Ciclo Red-Green-Refactor</h1>
+<h2>¿Por qué conviene utilizar TDD?</h2>
+<p>El <strong>Desarrollo Guiado por Pruebas (TDD)</strong> es una metodología que ofrece múltiples beneficios:</p>
+<ul>
+<li><strong>Mejora la calidad del código</strong>: Al escribir pruebas antes del código, se asegura que el código cumpla con los requisitos y funcione correctamente.</li>
+<li><strong>Facilita el mantenimiento</strong>: Las pruebas actúan como una red de seguridad que permite refactorizar el código con confianza, evitando regresiones.</li>
+<li><strong>Fomenta el diseño modular</strong>: TDD obliga a pensar en interfaces claras y componentes desacoplados, lo que resulta en un diseño más limpio y mantenible.</li>
+<li><strong>Documentación viva</strong>: Las pruebas sirven como documentación del comportamiento esperado del sistema, lo que facilita la comprensión del código.</li>
+<li><strong>Reduce errores</strong>: Al detectar problemas desde el inicio, se minimizan los errores que podrían surgir en etapas posteriores del desarrollo.</li>
+</ul>
+<h2>¿Por qué es necesario hacer pruebas?</h2>
+<p>Las pruebas son esenciales en el desarrollo de software por las siguientes razones:</p>
+<ul>
+<li><strong>Verificación de funcionalidad</strong>: Aseguran que el código cumpla con los requisitos y funcione como se espera.</li>
+<li><strong>Detección temprana de errores</strong>: Permiten identificar y corregir problemas antes de que lleguen a producción.</li>
+<li><strong>Confianza en el código</strong>: Proporcionan seguridad al realizar cambios, ya que las pruebas validan que el comportamiento no se vea afectado.</li>
+<li><strong>Mejora la colaboración</strong>: Las pruebas facilitan la integración de código en equipos, ya que garantizan que los cambios no rompan funcionalidades existentes.</li>
+<li><strong>Cumplimiento de estándares</strong>: En muchos proyectos, las pruebas son un requisito para garantizar la calidad del software.</li>
+</ul>
+<h2>El Ciclo Red-Green-Refactor</h2>
+<p>El ciclo <strong>Red-Green-Refactor</strong> es el núcleo de TDD y consta de tres etapas:</p>
+<ol>
+<li><strong>Red (Rojo)</strong>:
+<ul>
+<li>Escribir una prueba que falle. Esta prueba define el comportamiento deseado del código que aún no existe.</li>
+<li>El objetivo es asegurarse de que la prueba realmente verifica el comportamiento esperado y que el código actual no lo cumple.</li>
+</ul>
+</li>
+<li><strong>Green (Verde)</strong>:
+<ul>
+<li>Escribir el código mínimo necesario para que la prueba pase. No es necesario que el código sea perfecto, solo debe cumplir con la prueba.</li>
+<li>El objetivo es obtener una implementación funcional que cumpla con los requisitos definidos por la prueba.</li>
+</ul>
+</li>
+<li><strong>Refactor (Refactorizar)</strong>:
+<ul>
+<li>Mejorar el código sin cambiar su comportamiento. Esto incluye eliminar duplicación, mejorar la legibilidad y optimizar el rendimiento.</li>
+<li>El objetivo es mantener el código limpio y mantenible, asegurando que las pruebas sigan pasando.</li>
+</ul>
+</li>
+</ol>
+<h2>¿Por qué es necesario que la prueba falle primero?</h2>
+<p>Es crucial que la prueba falle inicialmente por las siguientes razones:</p>
+<ul>
+<li><strong>Validar la prueba</strong>: Si la prueba pasa sin escribir el código, puede que la prueba no esté verificando lo que se espera o que el comportamiento ya esté implementado por error.</li>
+<li><strong>Definir el comportamiento esperado</strong>: La prueba fallida actúa como una especificación clara de lo que el código debe hacer.</li>
+<li><strong>Evitar falsos positivos</strong>: Asegura que la prueba realmente detecta problemas y no pasa por coincidencia o por un error en su implementación.</li>
+<li><strong>Confirmar el progreso</strong>: Verificar que la prueba pasa después de escribir el código confirma que el problema se ha resuelto correctamente.</li>
+</ul>
+<h2>Conclusión</h2>
+<p>TDD es una metodología poderosa que mejora la calidad del software, facilita el mantenimiento y fomenta un diseño modular. El ciclo <strong>Red-Green-Refactor</strong> es fundamental para asegurar que el código cumpla con los requisitos y se mantenga limpio. Hacer que la prueba falle primero es esencial para validar su efectividad y garantizar que el código implementado resuelva el problema correctamente.</p>
+</body>
+</html>

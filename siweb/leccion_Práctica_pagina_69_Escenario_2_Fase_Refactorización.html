@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Escenario_2_Fase_Refactorización</title>
+</head>
+<body>
+<h1>Prueba Unitaria - Escenario de Prueba 2 (Fase Refactor TDD)</h1>
+<p>Hemos refactorizado el código para mejorar su claridad, mantenibilidad y adherencia a los principios SOLID. Ahora estamos en la fase <strong>Refactor</strong> de <strong>TDD</strong>.</p>
+<h2>Estructura de Carpetas</h2>
+<pre><code>
+src/
+├── main/
+│   ├── java/
+│   │   └── com/
+│   │       └── store/
+│   │           ├── application/          # Capa de aplicación
+│   │           │   └── ProductController.java  # Controlador REST (no incluido en el ejemplo)
+│   │           ├── domain/               # Capa de dominio
+│   │           │   ├── model/
+│   │           │   │   └── Product.java  # Entidad de dominio
+│   │           │   ├── service/
+│   │           │   │   └── ProductService.java  # Servicio de dominio
+│   │           │   └── port/
+│   │           │       └── ProductRepository.java  # Puerto (interfaz de repositorio)
+│   │           └── infrastructure/       # Capa de infraestructura
+│   │               └── persistence/
+│   │                   └── ProductRepositoryImpl.java  # Implementación del repositorio (no incluido en el ejemplo)
+│   ├── resources/
+│   │   └── application.properties        # Configuración de la aplicación
+├── test/
+│   ├── java/
+│   │   └── com/
+│   │       └── store/
+│   │           └── domain/
+│   │               └── service/
+│   │                   └── ProductServiceTest.java  # Prueba unitaria
+│   └── resources/
+│       └── application-test.properties   # Configuración para pruebas
+    </code></pre>
+<h2>Código de la Prueba Unitaria (Refactorizada)</h2>
+<p><button class="copy-button">Copiar Código de Prueba</button></p>
+<pre id="test-code"><code>
+package com.store.domain.service;
+
+import com.store.domain.model.Product;
+import com.store.domain.port.ProductRepository;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class ProductServiceTest {
+
+    @Test
+    void whenSetMinimumStockLevel_thenLevelIsSaved() {
+        // Arrange
+        ProductRepository productRepository = mock(ProductRepository.class);
+        ProductService productService = new ProductService(productRepository);
+        Product product = new Product("Camiseta Azul", 20);
+        int newMinimumStockLevel = 15;
+
+        // Act
+        productService.setMinimumStockLevel(product, newMinimumStockLevel);
+
+        // Assert
+        verify(productRepository).save(product);
+        assertEquals(newMinimumStockLevel, product.getMinimumStockLevel());
+    }
+
+    @Test
+    void whenSetMinimumStockLevelWithInvalidValue_thenThrowException() {
+        // Arrange
+        ProductRepository productRepository = mock(ProductRepository.class);
+        ProductService productService = new ProductService(productRepository);
+        Product product = new Product("Camiseta Azul", 20);
+        int invalidMinimumStockLevel = 0;
+
+        // Act &amp; Assert
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -&gt; productService.setMinimumStockLevel(product, invalidMinimumStockLevel)
+        );
+        assertEquals("El nivel mínimo de stock debe ser mayor que cero.", exception.getMessage());
+        verify(productRepository, never()).save(product);
+    }
+}
+    </code></pre>
+<h2>Implementación del Servicio de Dominio (Refactorizada)</h2>
+<p><button class="copy-button">Copiar Implementación del Servicio</button></p>
+<pre id="service-code"><code>
+// ProductService.java (Servicio de Dominio - Refactorizado)
+package com.store.domain.service;
+
+import com.store.domain.model.Product;
+import com.store.domain.port.ProductRepository;
+
+public class ProductService {
+    private final ProductRepository productRepository;
+
+    public ProductService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
+
+    public void setMinimumStockLevel(Product product, int minimumStockLevel) {
+        validateMinimumStockLevel(minimumStockLevel);
+        product.setMinimumStockLevel(minimumStockLevel);
+        productRepository.save(product);
+    }
+
+    private void validateMinimumStockLevel(int minimumStockLevel) {
+        if (minimumStockLevel &lt;= 0) {
+            throw new IllegalArgumentException("El nivel mínimo de stock debe ser mayor que cero.");
+        }
+    }
+}
+    </code></pre>
+<h2>Interfaces y Clases del Dominio (Refactorizadas)</h2>
+<p><button class="copy-button">Copiar Interfaces y Clases</button></p>
+<pre id="interface-code"><code>
+// Product.java (Modelo de Dominio - Refactorizado)
+package com.store.domain.model;
+
+public class Product {
+    private final String name;
+    private final int stock;
+    private int minimumStockLevel;
+
+    public Product(String name, int stock) {
+        this.name = name;
+        this.stock = stock;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public int getMinimumStockLevel() {
+        return minimumStockLevel;
+    }
+
+    public void setMinimumStockLevel(int minimumStockLevel) {
+        this.minimumStockLevel = minimumStockLevel;
+    }
+}
+
+// ProductRepository.java (Puerto de Dominio - Refactorizado)
+package com.store.domain.port;
+
+import com.store.domain.model.Product;
+
+public interface ProductRepository {
+    void save(Product product);
+}
+    </code></pre>
+<h2>Mejoras en la Refactorización</h2>
+<ul>
+<li><strong>Extracción de Métodos</strong>: Se extrajo la validación del nivel mínimo de stock en un método privado (`validateMinimumStockLevel`) para mejorar la claridad y reutilización.</li>
+<li><strong>Inmutabilidad Parcial</strong>: Se hicieron los campos `name` y `stock` de `Product` finales para garantizar que no cambien después de la creación del objeto.</li>
+<li><strong>Pruebas Adicionales</strong>: Se añadió una nueva prueba unitaria para validar el comportamiento cuando se proporciona un nivel mínimo de stock inválido.</li>
+<li><strong>Claridad del Código</strong>: Se mejoró la legibilidad del código en `ProductService` y `Product`.</li>
+</ul>
+<h2>Uso de SOLID</h2>
+<ul>
+<li><strong>Single Responsibility Principle (SRP)</strong>: Cada clase y método tiene una única responsabilidad.</li>
+<li><strong>Open/Closed Principle (OCP)</strong>: El diseño permite extender el comportamiento sin modificar el código existente.</li>
+<li><strong>Liskov Substitution Principle (LSP)</strong>: Las implementaciones de `ProductRepository` pueden ser sustituidas sin afectar el comportamiento.</li>
+<li><strong>Interface Segregation Principle (ISP)</strong>: `ProductRepository` define una interfaz específica y cohesiva.</li>
+<li><strong>Dependency Inversion Principle (DIP)</strong>: `ProductService` depende de una abstracción (`ProductRepository`), no de una implementación concreta.</li>
+</ul>
+<h2>Fase Refactor de TDD</h2>
+<p>En esta fase, hemos mejorado el código sin cambiar su comportamiento. Las pruebas unitarias siguen pasando, lo que garantiza que la refactorización no ha introducido errores.</p>
+<p>
+<script>
+        function copyCode(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const textArea = document.createElement("textarea");
+            textArea.value = codeElement.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('Código copiado al portapapeles');
+        }
+    </script>
+</p>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Nuevo_Requerimiento._Fase_Verde</title>
+</head>
+<body>
+<div class="tdd-implementation">
+<h2>Implementación TDD para Incrementar Stock</h2>
+<section class="acceptance-criteria">
+<h3>Criterio de Aceptación</h3>
+<p><strong>El sistema debe permitir incrementar el stock de un producto existente</strong></p>
+</section>
+<section class="tdd-phase green-phase">
+<h3>Fase Verde: Implementación que pasa las pruebas</h3>
+<div class="service-code">
+<h4>ProductService (Implementación completa)</h4>
+<button class="copy-button">Copiar</button>
+<pre id="green-service-code"><code class="java">package com.store.domain.service;
+
+import com.store.domain.port.ProductRepository;
+import com.store.domain.model.Product;
+
+public class ProductService {
+    private final ProductRepository productRepository;
+
+    public ProductService(ProductRepository productRepository){
+        this.productRepository = productRepository;
+    }
+
+    public void incrementStock(String productName, int increment) {
+        // Validar que el incremento no sea negativo
+        if (increment &lt; 0) {
+            throw new IllegalArgumentException("El incremento no puede ser negativo");
+        }
+        
+        // Buscar el producto
+        Product product = productRepository.findByName(productName);
+        if (product == null) {
+            throw new IllegalArgumentException("Producto no encontrado");
+        }
+        
+        // Incrementar el stock y guardar
+        product.setStock(product.getStock() + increment);
+        productRepository.save(product);
+    }
+
+    // Métodos existentes...
+    public void saveProduct(Product product) {
+        if (product.getStock() &lt; 0){
+            throw new IllegalArgumentException("El stock no debe ser negativo.");
+        }
+        productRepository.save(product);
+    }
+
+    public void setMinimumStockLevel(Product product, int minimumStockLevel){
+        validateMinimumStockLevel(minimumStockLevel);
+        product.setMinimumStockLevel(minimumStockLevel);
+        saveProduct(product);
+    }
+
+    private void validateMinimumStockLevel(int minimumStockLevel){
+        if (minimumStockLevel &lt;= 0){
+            throw new IllegalArgumentException("El nivel mínimo debe ser mayor a cero.");
+        }
+    }
+}</code></pre>
+</div>
+<div class="verification">
+<h4>Verificación de la fase verde</h4>
+<ul>
+<li>✅ Todas las pruebas unitarias pasan correctamente</li>
+<li>✅ Se implementaron las validaciones requeridas</li>
+<li>✅ El flujo de incremento de stock funciona según lo esperado</li>
+<li>✅ Se mantiene la coherencia con el diseño del dominio</li>
+</ul>
+</div>
+</section>
+<section class="next-steps">
+<h3>Próximos pasos: Fase Refactor (Amarilla)</h3>
+<p>Ahora que tenemos las pruebas pasando, podemos proceder a:</p>
+<ol>
+<li>Revisar posibles duplicaciones de código</li>
+<li>Mejorar la legibilidad del código</li>
+<li>Optimizar las interacciones con el repositorio</li>
+<li>Verificar posibles mejoras en el diseño</li>
+</ol>
+</section>
+</div>
+<script>
+  function copyCode(elementId) {
+    const codeElement = document.getElementById(elementId);
+    const range = document.createRange();
+    range.selectNode(codeElement);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand('copy');
+    window.getSelection().removeAllRanges();
+
+    // Feedback visual
+    const button = event.target;
+    button.textContent = '¡Copiado!';
+    setTimeout(() => {
+      button.textContent = 'Copiar';
+    }, 2000);
+  }
+</script>
+</body>
+</html>

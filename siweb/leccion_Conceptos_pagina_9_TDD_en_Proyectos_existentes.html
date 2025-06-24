@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TDD_en_Proyectos_existentes</title>
+</head>
+<body>
+<h1>Aplicación de TDD en una Aplicación Existente</h1>
+<h2>Ciclo de TDD</h2>
+<p>El ciclo de TDD consta de tres fases principales:</p>
+<ol>
+<li><strong>Escribir una prueba fallida (Red)</strong>.</li>
+<li><strong>Hacer que la prueba pase (Green)</strong>.</li>
+<li><strong>Refactorizar el código (Refactor)</strong>.</li>
+</ol>
+<h3>1. Escribir una Prueba Fallida (Red)</h3>
+<p>En una aplicación existente, esta fase se enfoca en:</p>
+<ul>
+<li><strong>Identificar áreas de mejora</strong>: Analiza el código existente para encontrar funcionalidades que no están cubiertas por pruebas o que tienen cobertura insuficiente.</li>
+<li><strong>Definir nuevos casos de prueba</strong>: Escribe pruebas para cubrir escenarios no contemplados o para validar comportamientos específicos que no están siendo probados.</li>
+<li><strong>Reforzar pruebas existentes</strong>: Si las pruebas existentes son frágiles o no cubren casos límite, escribe nuevas pruebas para mejorar la robustez.</li>
+</ul>
+<p><strong>Ejemplo</strong>:</p>
+<ul>
+<li>Si tienes un método que calcula el descuento de un producto, pero solo está probado para valores positivos, escribe una prueba para valores negativos o nulos.</li>
+</ul>
+<h3>2. Hacer que la Prueba Pase (Green)</h3>
+<p>En esta fase, el objetivo es:</p>
+<ul>
+<li><strong>Implementar el código necesario</strong>: Modifica el código existente para que pase la nueva prueba. Asegúrate de no romper las pruebas existentes.</li>
+<li><strong>Mantener la funcionalidad actual</strong>: Si la aplicación ya está en producción, asegúrate de que los cambios no introduzcan regresiones.</li>
+<li><strong>Integrar nuevas funcionalidades</strong>: Si estás agregando nuevas características, implementa el código necesario para que cumpla con los requisitos definidos por las pruebas.</li>
+</ul>
+<p><strong>Ejemplo</strong>:</p>
+<ul>
+<li>Si la nueva prueba falla porque el método no maneja valores negativos, modifica el método para que los maneje correctamente.</li>
+</ul>
+<h3>3. Refactorizar el Código (Refactor)</h3>
+<p>En una aplicación existente, esta fase es crucial para:</p>
+<ul>
+<li><strong>Mejorar la legibilidad</strong>: Refactoriza el código para que sea más claro y mantenible.</li>
+<li><strong>Eliminar duplicación</strong>: Identifica y elimina código duplicado.</li>
+<li><strong>Aplicar buenas prácticas</strong>: Asegúrate de que el código siga principios como SOLID, DRY (Don't Repeat Yourself) y KISS (Keep It Simple, Stupid).</li>
+<li><strong>Optimizar el rendimiento</strong>: Si es necesario, mejora el rendimiento del código sin alterar su funcionalidad.</li>
+</ul>
+<p><strong>Ejemplo</strong>:</p>
+<ul>
+<li>Si el método que calcula el descuento tiene lógica redundante, refactorízalo para eliminar la duplicación y mejorar su claridad.</li>
+</ul>
+<h2>Cómo Aplicar TDD en una Aplicación Existente</h2>
+<h3>1. Identificar Áreas de Mejora</h3>
+<ul>
+<li><strong>Revisar el coverage</strong>: Utiliza herramientas como <strong>JaCoCo</strong> (para Java) o <strong>Coverage.py</strong> (para Python) para identificar partes del código que no están cubiertas por pruebas.</li>
+<li><strong>Analizar pruebas existentes</strong>: Revisa las pruebas unitarias actuales para detectar huecos en la cobertura o pruebas frágiles.</li>
+</ul>
+<h3>2. Escribir Pruebas para Nuevas Funcionalidades</h3>
+<p>Si estás agregando una nueva funcionalidad, sigue el ciclo de TDD:</p>
+<ol>
+<li>Escribe una prueba para la nueva funcionalidad.</li>
+<li>Implementa el código para que la prueba pase.</li>
+<li>Refactoriza el código si es necesario.</li>
+</ol>
+<h3>3. Mejorar Pruebas Existentes</h3>
+<ul>
+<li><strong>Agregar pruebas para casos límite</strong>: Escribe pruebas para escenarios que no están siendo cubiertos, como entradas inválidas o condiciones extremas.</li>
+<li><strong>Refactorizar pruebas</strong>: Si las pruebas existentes son difíciles de mantener o entender, refactorízalas para mejorar su claridad.</li>
+</ul>
+<h3>4. Refactorizar el Código de Producción</h3>
+<p>Aprovecha las pruebas existentes para refactorizar el código de producción con confianza:</p>
+<ol>
+<li>Asegúrate de que todas las pruebas pasen antes de refactorizar.</li>
+<li>Realiza cambios pequeños y verifica que las pruebas sigan pasando después de cada cambio.</li>
+</ol>
+<h3>5. Integrar TDD en el Flujo de Trabajo</h3>
+<ul>
+<li><strong>Definir criterios de aceptación</strong>: Antes de implementar cualquier cambio, define los criterios de aceptación y escribe pruebas para validarlos.</li>
+<li><strong>Trabajar en iteraciones pequeñas</strong>: Aplica el ciclo de TDD en pequeñas iteraciones para mantener el control sobre los cambios.</li>
+</ul>
+<h2>Beneficios de Aplicar TDD en una Aplicación Existente</h2>
+<ol>
+<li><strong>Mejora la calidad del código</strong>: Al agregar pruebas y refactorizar, el código se vuelve más robusto y mantenible.</li>
+<li><strong>Reduce el riesgo de regresiones</strong>: Las pruebas actúan como una red de seguridad para detectar errores introducidos por cambios.</li>
+<li><strong>Facilita la incorporación de nuevas funcionalidades</strong>: Al tener un conjunto sólido de pruebas, es más seguro y rápido agregar nuevas características.</li>
+<li><strong>Incrementa el coverage</strong>: A medida que agregas pruebas, aumentas la cobertura del código, lo que mejora la confianza en la aplicación.</li>
+</ol>
+<ol>
+<li style="list-style-type: none;"> </li>
+</ol>
+<h2>Conclusión</h2>
+<p>Aplicar TDD en una aplicación existente es posible y beneficioso. Aunque el diseño ya está definido, el ciclo de TDD te permite mejorar la calidad del código, aumentar la cobertura de pruebas y reducir el riesgo de regresiones. La clave es identificar áreas de mejora, escribir pruebas significativas y refactorizar de manera incremental.</p>
+</body>
+</html>

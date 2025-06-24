@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Escenario_1_Controladores_Ciclos_RGR</title>
+</head>
+<body>
+<h1>Pruebas Unitarias del Controlador - Escenario 1 (TDD)</h1>
+<p>En esta sección, se aplica TDD (Test-Driven Development) a la capa de controller. Se incluye el código del controlador (`ProductController`) y sus pruebas unitarias.</p>
+<h2>Estructura de Carpetas</h2>
+<pre><code>
+src/
+├── main/
+│   ├── java/
+│   │   └── com/
+│   │       └── store/
+│   │           ├── application/          # Capa de aplicación
+│   │           │   └── ProductController.java  # Controlador REST
+│   │           ├── domain/               # Capa de dominio
+│   │           │   ├── model/
+│   │           │   │   └── Product.java  # Entidad de dominio
+│   │           │   ├── service/
+│   │           │   │   └── ProductService.java  # Servicio de dominio
+│   │           │   └── port/
+│   │           │       ├── ProductRepository.java  # Puerto (interfaz de repositorio)
+│   │           │       └── AlertNotifier.java     # Interfaz para notificaciones
+│   │           └── infrastructure/       # Capa de infraestructura
+│   │               └── persistence/
+│   │                   └── ProductRepositoryImpl.java  # Implementación del repositorio (no incluido en el ejemplo)
+│   ├── resources/
+│   │   └── application.properties        # Configuración de la aplicación
+├── test/
+│   ├── java/
+│   │   └── com/
+│   │       └── store/
+│   │           ├── application/
+│   │           │   └── ProductControllerTest.java  # Prueba unitaria del controlador
+│   │           └── domain/
+│   │               └── service/
+│   │                   └── ProductServiceTest.java  # Prueba unitaria del servicio
+│   └── resources/
+│       └── application-test.properties   # Configuración para pruebas
+    </code></pre>
+<h2>Código del Controlador (`ProductController`)</h2>
+<pre><code>
+// ProductController.java (Controlador REST)
+package com.store.application;
+
+import com.store.domain.model.Product;
+import com.store.domain.service.ProductService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+
+    private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
+    @PostMapping("/{id}/minimum-stock")
+    public ResponseEntity setMinimumStockLevel(
+            @PathVariable String id,
+            @RequestParam int minimumStockLevel) {
+        Product product = new Product(id, 0); // Simulación de un producto existente
+        productService.setMinimumStockLevel(product, minimumStockLevel);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/{id}/check-stock")
+    public ResponseEntity checkStockLevel(@PathVariable String id) {
+        Product product = new Product(id, 0); // Simulación de un producto existente
+        productService.checkStockLevel(product);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+}
+    </code></pre>
+<h2>Pruebas Unitarias del Controlador (`ProductControllerTest`)</h2>
+<pre><code>
+// ProductControllerTest.java (Prueba unitaria del controlador)
+package com.store.application;
+
+import com.store.domain.model.Product;
+import com.store.domain.service.ProductService;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class ProductControllerTest {
+
+    @Mock
+    private ProductService productService;
+
+    @InjectMocks
+    private ProductController productController;
+
+    @Test
+    void whenSetMinimumStockLevel_thenReturnOk() {
+        // Arrange
+        String productId = "1";
+        int minimumStockLevel = 10;
+
+        // Act
+        ResponseEntity response = productController.setMinimumStockLevel(productId, minimumStockLevel);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(productService).setMinimumStockLevel(any(Product.class), eq(minimumStockLevel));
+    }
+
+    @Test
+    void whenCheckStockLevel_thenReturnOk() {
+        // Arrange
+        String productId = "1";
+
+        // Act
+        ResponseEntity response = productController.checkStockLevel(productId);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(productService).checkStockLevel(any(Product.class));
+    }
+}
+    </code></pre>
+<h2>Explicación del Código</h2>
+<h3>Controlador (`ProductController`)</h3>
+<ul>
+<li><strong>Endpoints</strong>:
+<ul>
+<li><code>POST /products/{id}/minimum-stock</code>: Establece el nivel mínimo de stock para un producto.</li>
+<li><code>POST /products/{id}/check-stock</code>: Verifica el nivel de stock de un producto y genera una alerta si es necesario.</li>
+</ul>
+</li>
+<li><strong>Inyección de Dependencias</strong>:
+<ul>
+<li>El controlador depende de <code>ProductService</code>, que se inyecta a través del constructor.</li>
+</ul>
+</li>
+<li><strong>Respuestas HTTP</strong>:
+<ul>
+<li>Se devuelve un <code>ResponseEntity</code> con el código de estado <code>HttpStatus.OK</code> cuando la operación es exitosa.</li>
+</ul>
+</li>
+</ul>
+<h3>Pruebas Unitarias (`ProductControllerTest`)</h3>
+<ul>
+<li><strong>Configuración</strong>:
+<ul>
+<li>Se utiliza <code>Mockito</code> para simular el comportamiento de <code>ProductService</code>.</li>
+<li>Se inyecta el controlador con las dependencias simuladas.</li>
+</ul>
+</li>
+<li><strong>Pruebas</strong>:
+<ul>
+<li><strong><code>whenSetMinimumStockLevel_thenReturnOk</code></strong>: Verifica que el endpoint <code>POST /products/{id}/minimum-stock</code> devuelve un código de estado <code>200 OK</code> y llama al método <code>setMinimumStockLevel</code> del servicio.</li>
+<li><strong><code>whenCheckStockLevel_thenReturnOk</code></strong>: Verifica que el endpoint <code>POST /products/{id}/check-stock</code> devuelve un código de estado <code>200 OK</code> y llama al método <code>checkStockLevel</code> del servicio.</li>
+</ul>
+</li>
+</ul>
+<h2>Aplicación de TDD en el Controlador</h2>
+<ol>
+<li><strong>Fase Red</strong>:
+<ul>
+<li>Escribimos las pruebas unitarias para el controlador antes de implementar los métodos.</li>
+<li>Las pruebas fallan porque los métodos del controlador no están implementados.</li>
+</ul>
+</li>
+<li><strong>Fase Green</strong>:
+<ul>
+<li>Implementamos los métodos del controlador para que las pruebas pasen.</li>
+<li>Verificamos que el controlador maneja correctamente las solicitudes HTTP y llama a los métodos del servicio.</li>
+</ul>
+</li>
+<li><strong>Fase Refactor</strong>:
+<ul>
+<li>Mejoramos el código del controlador sin cambiar su comportamiento.</li>
+<li>Aseguramos que las pruebas sigan pasando después de la refactorización.</li>
+</ul>
+</li>
+</ol>
+<h2>Ejemplo de Refactorización del Controlador</h2>
+<pre><code>
+// ProductController.java (Refactorizado)
+package com.store.application;
+
+import com.store.domain.model.Product;
+import com.store.domain.service.ProductService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+
+    private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
+    @PostMapping("/{id}/minimum-stock")
+    public ResponseEntity setMinimumStockLevel(
+            @PathVariable String id,
+            @RequestParam int minimumStockLevel) {
+        Product product = getProductById(id); // Extracción de lógica repetitiva
+        productService.setMinimumStockLevel(product, minimumStockLevel);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/{id}/check-stock")
+    public ResponseEntity checkStockLevel(@PathVariable String id) {
+        Product product = getProductById(id); // Extracción de lógica repetitiva
+        productService.checkStockLevel(product);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    private Product getProductById(String id) {
+        return new Product(id, 0); // Simulación de un producto existente
+    }
+}
+    </code></pre>
+<h2>Próximos Pasos</h2>
+<ol>
+<li><strong>Agregar Más Pruebas</strong>:
+<ul>
+<li>Pruebas para manejo de errores (por ejemplo, producto no encontrado).</li>
+<li>Pruebas para validación de entradas (por ejemplo, nivel mínimo de stock inválido).</li>
+</ul>
+</li>
+<li><strong>Integración con la Capa de Infraestructura</strong>:
+<ul>
+<li>Implementar la lógica de persistencia en <code>ProductRepositoryImpl</code>.</li>
+<li>Implementar la lógica de notificaciones en <code>AlertNotifier</code>.</li>
+</ul>
+</li>
+<li><strong>Pruebas de Integración</strong>:
+<ul>
+<li>Verificar que el controlador funciona correctamente con el servicio y la infraestructura.</li>
+</ul>
+</li>
+</ol>
+</body>
+</html>

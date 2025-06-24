@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>HAR</title>
+</head>
+<body>
+<p class="p1"><span class="s1">Aquí tienes la misma respuesta, pero con la prueba en </span><span class="s2">Java</span><span class="s1"> usando </span><span class="s2">JUnit y HttpClient</span><span class="s1">.</span></p>
+<p class="p1"><span class="s1">🛒 Caso de Uso: Problema con la Pasarela de Pago</span></p>
+<p class="p2"></p>
+<p class="p3"><span class="s3">Escenario</span></p>
+<p class="p2"></p>
+<p class="p4"><span class="s2">Un usuario intenta realizar una compra en un e-commerce, pero después de ingresar sus datos de pago, la página queda en estado de “cargando” sin completar la transacción. El equipo sospecha que hay un problema en la comunicación entre el frontend y la pasarela de pago.</span></p>
+<p class="p1"><span class="s1">🔍 Prueba Usando HAR</span></p>
+<p class="p2"></p>
+<p class="p3"><span class="s3">1️⃣ Captura del Archivo HAR</span></p>
+<p class="p2"></p>
+<p class="p4"><span class="s2">Para analizar el problema, un tester o desarrollador debe capturar el tráfico de red desde el navegador:</span></p>
+<p class="p5"><span class="s2">1. Abrir la tienda en línea en </span><span class="s4">Google Chrome</span><span class="s2"> o </span><span class="s4">Firefox</span><span class="s2">.</span></p>
+<p class="p5"><span class="s2">2. Ir a </span><span class="s4">Herramientas para desarrolladores</span><span class="s2"> (</span><span class="s5">F12</span><span class="s2"> o </span><span class="s5">Ctrl + Shift + I</span><span class="s2">).</span></p>
+<p class="p5"><span class="s2">3. Ir a la pestaña </span><span class="s4">Red (Network)</span><span class="s2">.</span></p>
+<p class="p5"><span class="s2">4. Habilitar </span><span class="s4">Preservar Registro (Preserve log)</span><span class="s2"> para registrar todas las solicitudes.</span></p>
+<p class="p5"><span class="s2">5. Realizar la compra normalmente hasta que falle.</span></p>
+<p class="p5"><span class="s2">6. Guardar el registro como </span><span class="s4">archivo HAR</span><span class="s2"> (</span><span class="s5">Export HAR</span><span class="s2">).</span></p>
+<p class="p1"><span class="s1">2️⃣ Análisis del Archivo HAR</span></p>
+<p class="p2"></p>
+<p class="p3"><span class="s2">El archivo HAR contiene información clave como:</span></p>
+<p class="p4"><span class="s2">• </span><span class="s3">Tiempo de carga</span><span class="s2"> de cada solicitud.</span></p>
+<p class="p4"><span class="s2">• </span><span class="s3">Códigos de estado HTTP</span><span class="s2"> (200, 400, 500, etc.).</span></p>
+<p class="p4"><span class="s2">• </span><span class="s3">Cuerpo de las respuestas</span><span class="s2">.</span></p>
+<p class="p4"><span class="s2">• </span><span class="s3">Headers de la petición</span><span class="s2">.</span></p>
+<p class="p4"></p>
+<p>POST /transaction HTTP/1.1<br>Host: api.pagos.com<br>Authorization: Bearer TOKEN_INVALIDO<br>Content-Type: application/json<br>User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36<br>Content-Length: 120</p>
+<p>{<br>    "monto": 100.00,<br>    "moneda": "USD",<br>    "tarjeta": "4111111111111111",<br>    "expiracion": "12/25",<br>    "cvv": "123"<br>}</p>
+<p class="p2"></p>
+<p class="p3"><span class="s2">Al analizar el HAR, se descubre que la solicitud a </span><span class="s4">https://api.pagos.com/transaction</span><span class="s2"> retorna un </span><span class="s3">error 403 (Forbidden)</span><span class="s2">debido a un token de autenticación inválido.</span></p>
+<p>HTTP/1.1 403 Forbidden<br>Date: Mon, 17 Feb 2025 12:34:56 GMT<br>Server: nginx/1.21.3<br>Content-Type: application/json<br>Content-Length: 78</p>
+<p>{<br>    "error": "Acceso denegado",<br>    "mensaje": "El token de autenticación es inválido."<br>}</p>
+<p class="p3"></p>
+<p class="p1"><span class="s1">3️⃣ Creación de una Prueba Automatizada en Java (JUnit + HttpClient)</span></p>
+<p class="p2"></p>
+<p class="p3"><span class="s2">Para validar que la pasarela de pago está funcionando correctamente, podemos escribir una prueba en </span><span class="s3">Java</span><span class="s2"> con </span><span class="s3">JUnit 5 y HttpClient</span><span class="s2">:</span></p>
+<pre><code>import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import org.junit.jupiter.api.Test;
+
+public class PasarelaPagoTest {
+
+    @Test
+    void testTransaccionExitosa() throws Exception {
+        HttpClient client = HttpClient.newHttpClient();
+
+        String jsonData = """
+                {
+                    "monto": 100.00,
+                    "moneda": "USD",
+                    "tarjeta": "4111111111111111",
+                    "expiracion": "12/25",
+                    "cvv": "123"
+                }
+                """;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.pagos.com/transaction"))
+                .header("Authorization", "Bearer TOKEN_VALIDO")
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonData))
+                .build();
+
+        HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(200, response.statusCode(), "La transacción no fue exitosa.");
+    }
+}</code><br><br>Petición HTTP Correcta</pre>
+<p>POST /transaction HTTP/1.1<br>Host: api.pagos.com<br>Authorization: Bearer TOKEN_VALIDO<br>Content-Type: application/json<br>User-Agent: Java-HttpClient/11.0.17<br>Content-Length: 120</p>
+<p>{<br>    "monto": 100.00,<br>    "moneda": "USD",<br>    "tarjeta": "4111111111111111",<br>    "expiracion": "12/25",<br>    "cvv": "123"<br>}</p>
+<p>Respuesta Esperada</p>
+<p>HTTP/1.1 200 OK<br>Date: Mon, 17 Feb 2025 12:35:10 GMT<br>Server: nginx/1.21.3<br>Content-Type: application/json<br>Content-Length: 98</p>
+<p>{<br>    "transaccion_id": "TX123456789",<br>    "estado": "aprobado",<br>    "monto": 100.00,<br>    "moneda": "USD"<br>}</p>
+<p></p>
+<p class="p1"><span class="s1">✅ Beneficios del Uso de HAR en la Prueba</span></p>
+<p class="p2"><span class="s2">• </span><span class="s3">Diagnóstico Rápido:</span><span class="s2"> Se identifica el problema en la autenticación sin revisar logs del servidor.</span></p>
+<p class="p2"><span class="s2">• </span><span class="s3">Automatización:</span><span class="s2"> Se puede validar la integración con la pasarela en </span><span class="s3">pruebas automatizadas</span><span class="s2">.</span></p>
+<p class="p2"><span class="s2">• </span><span class="s3">Reproducibilidad:</span><span class="s2"> El archivo HAR permite compartir el problema con otros equipos.</span></p>
+<p class="p1"><span class="s1">Este ejemplo demuestra cómo un </span><span class="s2">archivo HAR</span><span class="s1"> puede ser una herramienta clave en </span><span class="s2">pruebas de servicios en retail</span><span class="s1">, ayudando a depurar problemas en la </span><span class="s2">integración de pagos en línea</span><span class="s1">.</span></p>
+</body>
+</html>

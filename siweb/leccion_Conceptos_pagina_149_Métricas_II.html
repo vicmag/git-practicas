@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Métricas_II</title>
+</head>
+<body>
+<div class="solid-examples">
+<h2>Ejemplos de Violaciones SOLID y sus Métricas Asociadas</h2>
+<section class="srp-violation">
+<h3>1. SRP - Alta Complejidad Ciclomática</h3>
+<div class="metric-info">
+<p><strong>Métrica Sonar:</strong> Complejidad Ciclomática alta (&gt;10)</p>
+<p><strong>Problema:</strong> Clase/Método con múltiples responsabilidades</p>
+</div>
+<div class="bad-example">
+<h4>Violación (Código Malo):</h4>
+<pre><code class="java">public class OrderProcessor {
+    // Este método hace demasiado: validación, cálculo, notificación, persistencia
+    public void processOrder(Order order) {
+        // 1. Validar orden
+        if (order == null) throw new IllegalArgumentException();
+        if (order.getItems().isEmpty()) throw new IllegalStateException();
+        
+        // 2. Calcular total
+        double total = 0;
+        for (Item item : order.getItems()) {
+            total += item.getPrice() * item.getQuantity();
+            if (item.isTaxable()) {
+                total += calculateTax(item);
+            }
+        }
+        
+        // 3. Aplicar descuentos
+        if (order.getCustomer().isPremium()) {
+            total *= 0.9; // 10% descuento
+        }
+        
+        // 4. Guardar en base de datos
+        order.setTotal(total);
+        orderRepository.save(order);
+        
+        // 5. Notificar al cliente
+        emailService.sendConfirmation(order.getCustomer(), order);
+    }
+    
+    private double calculateTax(Item item) { ... }
+}</code></pre>
+</div>
+<div class="good-example">
+<h4>Solución (Código Bueno):</h4>
+<pre><code class="java">public class OrderProcessor {
+    private final OrderValidator validator;
+    private final OrderCalculator calculator;
+    private final OrderRepository repository;
+    private final NotificationService notifier;
+    
+    public void processOrder(Order order) {
+        validator.validate(order);
+        calculator.calculateTotal(order);
+        repository.save(order);
+        notifier.sendConfirmation(order);
+    }
+}
+
+// Cada clase maneja una sola responsabilidad</code></pre>
+</div>
+</section>
+<section class="ocp-violation">
+<h3>2. OCP - Código Duplicado</h3>
+<div class="metric-info">
+<p><strong>Métrica Sonar:</strong> Líneas duplicadas</p>
+<p><strong>Problema:</strong> Modificación directa en lugar de extensión</p>
+</div>
+<div class="bad-example">
+<h4>Violación (Código Malo):</h4>
+<pre><code class="java">public class DiscountCalculator {
+    public double applyDiscount(Order order, String discountType) {
+        if ("SUMMER".equals(discountType)) {
+            return order.getTotal() * 0.8; // 20% descuento
+        } else if ("BLACKFRIDAY".equals(discountType)) {
+            return order.getTotal() * 0.7; // 30% descuento
+        }
+        // Cada nuevo descuento requiere modificar esta clase
+        return order.getTotal();
+    }
+}</code></pre>
+</div>
+<div class="good-example">
+<h4>Solución (Código Bueno):</h4>
+<pre><code class="java">public interface DiscountStrategy {
+    double apply(Order order);
+}
+
+public class SummerDiscount implements DiscountStrategy { ... }
+public class BlackFridayDiscount implements DiscountStrategy { ... }
+
+public class DiscountCalculator {
+    public double applyDiscount(Order order, DiscountStrategy strategy) {
+        return strategy.apply(order);
+    }
+}
+// Nuevos descuentos se añaden con nuevas clases sin modificar existentes</code></pre>
+</div>
+</section>
+<section class="lsp-violation">
+<h3>3. LSP - Herencia Profunda</h3>
+<div class="metric-info">
+<p><strong>Métrica Sonar:</strong> Profundidad de herencia (&gt;3 niveles)</p>
+<p><strong>Problema:</strong> Jerarquía compleja que viola sustituibilidad</p>
+</div>
+<div class="bad-example">
+<h4>Violación (Código Malo):</h4>
+<pre><code class="java">class Bird {
+    public void fly() { ... }
+}
+
+class Penguin extends Bird {
+    @Override
+    public void fly() {
+        throw new UnsupportedOperationException("Penguins can't fly!");
+    }
+}
+
+// Uso que viola LSP
+public void makeBirdFly(Bird bird) {
+    bird.fly(); // Falla si es un pingüino
+}</code></pre>
+</div>
+<div class="good-example">
+<h4>Solución (Código Bueno):</h4>
+<pre><code class="java">interface Bird {
+    void move();
+}
+
+class FlyingBird implements Bird {
+    public void move() { fly(); }
+    private void fly() { ... }
+}
+
+class Penguin implements Bird {
+    public void move() { swim(); }
+    private void swim() { ... }
+}
+
+// Todas las aves pueden moverse, cada una a su manera</code></pre>
+</div>
+</section>
+<section class="isp-violation">
+<h3>4. ISP - Interfaces Gruesas</h3>
+<div class="metric-info">
+<p><strong>Métrica Sonar:</strong> Muchos métodos por interfaz (&gt;5)</p>
+<p><strong>Problema:</strong> Clientes obligados a implementar métodos no usados</p>
+</div>
+<div class="bad-example">
+<h4>Violación (Código Malo):</h4>
+<pre><code class="java">interface Animal {
+    void eat();
+    void sleep();
+    void fly();   // ¿Y los pingüinos?
+    void swim();  // ¿Y los gatos?
+    void crawl(); // ¿Y los pájaros?
+}
+
+class Bird implements Animal {
+    // Debe implementar todos los métodos aunque no los use
+    public void crawl() { /* no aplica */ }
+}</code></pre>
+</div>
+<div class="good-example">
+<h4>Solución (Código Bueno):</h4>
+<pre><code class="java">interface BasicAnimal {
+    void eat();
+    void sleep();
+}
+
+interface FlyingCreature {
+    void fly();
+}
+
+interface SwimmingCreature {
+    void swim();
+}
+
+class Bird implements BasicAnimal, FlyingCreature {
+    // Solo implementa lo que necesita
+    public void fly() { ... }
+}</code></pre>
+</div>
+</section>
+<section class="dip-violation">
+<h3>5. DIP - Alto Acoplamiento</h3>
+<div class="metric-info">
+<p><strong>Métrica Sonar:</strong> Alto acoplamiento entre objetos (&gt;10 dependencias)</p>
+<p><strong>Problema:</strong> Dependencia directa de implementaciones concretas</p>
+</div>
+<div class="bad-example">
+<h4>Violación (Código Malo):</h4>
+<pre><code class="java">public class OrderService {
+    private MySQLOrderRepository repository = new MySQLOrderRepository();
+    private SMSEmailService emailService = new SMSEmailService();
+    
+    public void processOrder(Order order) {
+        repository.save(order);
+        emailService.sendConfirmation(order);
+    }
+}
+// Depende directamente de implementaciones concretas</code></pre>
+</div>
+<div class="good-example">
+<h4>Solución (Código Bueno):</h4>
+<pre><code class="java">public class OrderService {
+    private final OrderRepository repository;
+    private final NotificationService notifier;
+    
+    public OrderService(OrderRepository repo, NotificationService service) {
+        this.repository = repo;
+        this.notifier = service;
+    }
+    
+    public void processOrder(Order order) {
+        repository.save(order);
+        notifier.sendConfirmation(order);
+    }
+}
+// Depende de abstracciones, no de implementaciones</code></pre>
+</div>
+</section>
+</div>
+</body>
+</html>

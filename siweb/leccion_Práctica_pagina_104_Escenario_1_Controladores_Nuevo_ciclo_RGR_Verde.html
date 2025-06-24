@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Escenario_1_Controladores_Nuevo_ciclo_RGR_Verde</title>
+</head>
+<body>
+<h1>Pruebas Unitarias del Controlador - Nuevo Ciclo RGR (Fase Green)</h1>
+<p>En esta fase, se implementa la lógica en el controlador para manejar la excepción y devolver el código de estado <code>404 NOT FOUND</code> cuando el producto no existe.</p>
+<h2>Implementación del Controlador (Fase Green)</h2>
+<pre><code>
+// ProductController.java (Controlador REST - Fase Green)
+package com.store.application;
+
+import com.store.domain.model.Product;
+import com.store.domain.service.ProductService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+
+    private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
+    @PostMapping("/{id}/minimum-stock")
+    public ResponseEntity setMinimumStockLevel(
+            @PathVariable String id,
+            @RequestParam int minimumStockLevel) {
+        try {
+            Product product = new Product(id, 0); // Simulación de un producto existente
+            productService.setMinimumStockLevel(product, minimumStockLevel);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @PostMapping("/{id}/check-stock")
+    public ResponseEntity checkStockLevel(@PathVariable String id) {
+        Product product = new Product(id, 0); // Simulación de un producto existente
+        productService.checkStockLevel(product);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+}
+    </code></pre>
+<h2>Explicación de la Implementación</h2>
+<ul>
+<li><strong>Manejo de Excepciones</strong>:
+<ul>
+<li>Se añade un bloque <code>try-catch</code> en el método <code>setMinimumStockLevel</code> para capturar la excepción <code>IllegalArgumentException</code>.</li>
+<li>Si se lanza la excepción, se devuelve un código de estado <code>404 NOT FOUND</code>.</li>
+</ul>
+</li>
+<li><strong>Comportamiento Esperado</strong>:
+<ul>
+<li>Cuando el producto no existe, el servicio lanza una excepción, y el controlador devuelve <code>404 NOT FOUND</code>.</li>
+<li>Cuando el producto existe, el controlador devuelve <code>200 OK</code>.</li>
+</ul>
+</li>
+</ul>
+<h2>Prueba Unitaria (Fase Green)</h2>
+<pre><code>
+// ProductControllerTest.java (Prueba Unitária - Fase Green)
+package com.store.application;
+
+import com.store.domain.model.Product;
+import com.store.domain.service.ProductService;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class ProductControllerTest {
+
+    @Mock
+    private ProductService productService;
+
+    @InjectMocks
+    private ProductController productController;
+
+    @Test
+    void whenProductDoesNotExist_thenReturnNotFound() {
+        // Arrange
+        String productId = "999"; // ID de un producto que no existe
+        int minimumStockLevel = 10;
+
+        // Simular una excepción cuando el producto no existe
+        doThrow(new IllegalArgumentException("Producto no encontrado"))
+            .when(productService)
+            .setMinimumStockLevel(any(Product.class), eq(minimumStockLevel));
+
+        // Act
+        ResponseEntity response = productController.setMinimumStockLevel(productId, minimumStockLevel);
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+}
+    </code></pre>
+<h2>Explicación de la Prueba</h2>
+<ul>
+<li><strong>Escenario</strong>:
+<ul>
+<li>Se simula un caso en el que el producto no existe.</li>
+<li>El servicio lanza una excepción <code>IllegalArgumentException</code> con el mensaje "Producto no encontrado".</li>
+</ul>
+</li>
+<li><strong>Comportamiento Esperado</strong>:
+<ul>
+<li>El controlador captura la excepción y devuelve un código de estado <code>404 NOT FOUND</code>.</li>
+</ul>
+</li>
+<li><strong>Fase Green</strong>:
+<ul>
+<li>La prueba pasa porque el controlador maneja la excepción correctamente.</li>
+</ul>
+</li>
+</ul>
+<h2>Próximos Pasos</h2>
+<ol>
+<li><strong>Fase Refactor</strong>:
+<ul>
+<li>Mejorar el código del controlador sin cambiar su comportamiento.</li>
+<li>Por ejemplo, se podría extraer la lógica de manejo de excepciones en un método separado o usar un manejador global de excepciones.</li>
+</ul>
+</li>
+</ol>
+</body>
+</html>

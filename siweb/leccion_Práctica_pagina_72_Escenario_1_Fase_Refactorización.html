@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Escenario_1_Fase_Refactorización</title>
+</head>
+<body>
+<h1>Prueba Unitaria - Escenario 1 (Fase Refactor TDD)</h1>
+<p>Hemos refactorizado el código para mejorar su claridad, mantenibilidad y adherencia a los principios SOLID. Ahora estamos en la fase <strong>Refactor</strong> de <strong>TDD</strong>.</p>
+<h2>Estructura de Carpetas</h2>
+<pre><code>
+src/
+├── main/
+│   ├── java/
+│   │   └── com/
+│   │       └── store/
+│   │           ├── application/          # Capa de aplicación
+│   │           │   └── ProductController.java  # Controlador REST (no incluido en el ejemplo)
+│   │           ├── domain/               # Capa de dominio
+│   │           │   ├── model/
+│   │           │   │   └── Product.java  # Entidad de dominio
+│   │           │   ├── service/
+│   │           │   │   └── ProductService.java  # Servicio de dominio
+│   │           │   └── port/
+│   │           │       ├── ProductRepository.java  # Puerto (interfaz de repositorio)
+│   │           │       └── AlertNotifier.java     # Interfaz para notificaciones
+│   │           └── infrastructure/       # Capa de infraestructura
+│   │               └── persistence/
+│   │                   └── ProductRepositoryImpl.java  # Implementación del repositorio (no incluido en el ejemplo)
+│   ├── resources/
+│   │   └── application.properties        # Configuración de la aplicación
+├── test/
+│   ├── java/
+│   │   └── com/
+│   │       └── store/
+│   │           └── domain/
+│   │               └── service/
+│   │                   └── ProductServiceTest.java  # Prueba unitaria
+│   └── resources/
+│       └── application-test.properties   # Configuración para pruebas
+    </code></pre>
+<h2>Implementación del Servicio de Dominio (Refactorizada)</h2>
+<pre><code>
+// ProductService.java (Servicio de Dominio - Refactorizado)
+package com.store.domain.service;
+
+import com.store.domain.model.Product;
+import com.store.domain.port.ProductRepository;
+import com.store.domain.port.AlertNotifier;
+
+public class ProductService {
+    private final ProductRepository productRepository;
+    private final AlertNotifier alertNotifier;
+
+    public ProductService(ProductRepository productRepository, AlertNotifier alertNotifier) {
+        this.productRepository = productRepository;
+        this.alertNotifier = alertNotifier;
+    }
+
+    public void setMinimumStockLevel(Product product, int minimumStockLevel) {
+        validateMinimumStockLevel(minimumStockLevel);
+        product.setMinimumStockLevel(minimumStockLevel);
+        productRepository.save(product);
+    }
+
+    public void checkStockLevel(Product product) {
+        if (isStockBelowMinimumLevel(product)) {
+            alertNotifier.notifyLowStock(product);
+        }
+    }
+
+    private boolean isStockBelowMinimumLevel(Product product) {
+        return product.getStock() &lt;= product.getMinimumStockLevel();
+    }
+
+    private void validateMinimumStockLevel(int minimumStockLevel) {
+        if (minimumStockLevel &lt;= 0) {
+            throw new IllegalArgumentException("El nivel mínimo de stock debe ser mayor que cero.");
+        }
+    }
+}
+    </code></pre>
+<h2>Explicación de la Refactorización</h2>
+<ul>
+<li><strong>Extracción de Métodos</strong>:
+<ul>
+<li>Se extrajo la lógica de verificación del stock en un método privado (`isStockBelowMinimumLevel`) para mejorar la claridad y reutilización.</li>
+</ul>
+</li>
+<li><strong>Claridad del Código</strong>:
+<ul>
+<li>El método `checkStockLevel` ahora es más legible y se enfoca en su responsabilidad principal.</li>
+</ul>
+</li>
+<li><strong>Mantenibilidad</strong>:
+<ul>
+<li>La lógica de validación y verificación del stock está encapsulada en métodos privados, lo que facilita su mantenimiento y extensión.</li>
+</ul>
+</li>
+</ul>
+<h2>Pruebas Unitarias (Fase Refactor)</h2>
+<pre><code>
+package com.store.domain.service;
+
+import com.store.domain.model.Product;
+import com.store.domain.port.ProductRepository;
+import com.store.domain.port.AlertNotifier;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class ProductServiceTest {
+
+    @Test
+    void whenSetMinimumStockLevel_thenLevelIsSaved() {
+        // Arrange
+        ProductRepository productRepository = mock(ProductRepository.class);
+        AlertNotifier alertNotifier = mock(AlertNotifier.class);
+        ProductService productService = new ProductService(productRepository, alertNotifier);
+        Product product = new Product("Camiseta Azul", 20);
+        int newMinimumStockLevel = 15;
+
+        // Act
+        productService.setMinimumStockLevel(product, newMinimumStockLevel);
+
+        // Assert
+        verify(productRepository).save(product);
+        assertEquals(newMinimumStockLevel, product.getMinimumStockLevel());
+    }
+
+    @Test
+    void whenSetMinimumStockLevelWithInvalidValue_thenThrowException() {
+        // Arrange
+        ProductRepository productRepository = mock(ProductRepository.class);
+        AlertNotifier alertNotifier = mock(AlertNotifier.class);
+        ProductService productService = new ProductService(productRepository, alertNotifier);
+        Product product = new Product("Camiseta Azul", 20);
+        int invalidMinimumStockLevel = 0;
+
+        // Act &amp; Assert
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -&gt; productService.setMinimumStockLevel(product, invalidMinimumStockLevel)
+        );
+        assertEquals("El nivel mínimo de stock debe ser mayor que cero.", exception.getMessage());
+        verify(productRepository, never()).save(product);
+    }
+
+    @Test
+    void whenStockIsBelowMinimumLevel_thenAlertIsTriggered() {
+        // Arrange
+        ProductRepository productRepository = mock(ProductRepository.class);
+        AlertNotifier alertNotifier = mock(AlertNotifier.class);
+        ProductService productService = new ProductService(productRepository, alertNotifier);
+        Product product = new Product("Camiseta Azul", 20);
+        product.setMinimumStockLevel(10); // Nivel mínimo configurado
+
+        // Act
+        product.setStock(5); // Reducir el stock por debajo del nivel mínimo
+        productService.checkStockLevel(product);
+
+        // Assert
+        verify(alertNotifier).notifyLowStock(product);
+    }
+}
+    </code></pre>
+<h2>Explicación de las Pruebas</h2>
+<ul>
+<li><strong>Pruebas Existentes</strong>:
+<ul>
+<li>Las pruebas siguen pasando después de la refactorización, lo que garantiza que el comportamiento no ha cambiado.</li>
+</ul>
+</li>
+</ul>
+<h2>Fase Refactor de TDD</h2>
+<p>En esta fase, hemos mejorado el código sin cambiar su comportamiento. Las pruebas unitarias siguen pasando, lo que garantiza que la refactorización no ha introducido errores.</p>
+<h2>Próximos Pasos</h2>
+<p>Ahora que el código está refactorizado, puedes continuar con el desarrollo iterativo siguiendo el ciclo TDD (Red, Green, Refactor) para implementar nuevas funcionalidades o mejorar las existentes.</p>
+</body>
+</html>

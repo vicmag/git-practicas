@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Patrones_de_pruebas</title>
+</head>
+<body>
+<div class="test-examples">
+<h2>Pruebas Unitarias en Fase Roja (TDD) con Diferentes Patrones</h2>
+<section class="test-cases">
+<h3>1. Prueba con Mock básico (when-thenReturn)</h3>
+<pre><code class="java">@Test
+void whenProductStockBelowMinimum_ShouldTriggerAlert() {
+    // Arrange
+    ProductRepository mockRepo = mock(ProductRepository.class);
+    StockAlertNotifier mockNotifier = mock(StockAlertNotifier.class);
+    ProductService service = new ProductService(mockRepo, mockNotifier);
+    
+    Product testProduct = new Product("Camiseta", 5, 10); // stock 5, mínimo 10
+    
+    // Configurar mock con when-thenReturn
+    when(mockRepo.findByName("Camiseta")).thenReturn(testProduct);
+    
+    // Act
+    service.checkStockLevel("Camiseta");
+    
+    // Assert
+    verify(mockNotifier).sendAlert(testProduct);
+}</code></pre>
+</section>
+<section class="test-cases">
+<h3>2. Prueba con Mock y Stub</h3>
+<pre><code class="java">@Test
+void whenReplenishingStock_ShouldUpdateCorrectly() {
+    // Arrange
+    ProductRepository stubRepo = mock(ProductRepository.class);
+    SupplierService mockSupplier = mock(SupplierService.class);
+    InventoryService service = new InventoryService(stubRepo, mockSupplier);
+    
+    Product testProduct = new Product("Zapatos", 3, 10);
+    
+    // Configurar stub
+    when(stubRepo.findById("prod-123")).thenReturn(testProduct);
+    when(stubRepo.update(any(Product.class))).thenReturn(true);
+    
+    // Configurar mock
+    when(mockSupplier.orderProduct("Zapatos", 10)).thenReturn(true);
+    
+    // Act
+    boolean result = service.replenishStock("prod-123");
+    
+    // Assert
+    assertTrue(result);
+    verify(stubRepo).update(argThat(p -&gt; p.getStock() == 13));
+}</code></pre>
+</section>
+<section class="test-cases">
+<h3>3. Prueba con Argument Matchers</h3>
+<pre><code class="java">@Test
+void whenSavingProduct_ShouldValidateAllFields() {
+    // Arrange
+    ProductRepository mockRepo = mock(ProductRepository.class);
+    ProductValidator mockValidator = mock(ProductValidator.class);
+    ProductService service = new ProductService(mockRepo, mockValidator);
+    
+    // Configurar con argument matchers
+    when(mockValidator.isValid(anyString(), anyInt(), anyInt()))
+        .thenReturn(true);
+    
+    // Act
+    service.createProduct("Pantalón", 50, 10);
+    
+    // Assert
+    verify(mockRepo).save(argThat(p -&gt; 
+        p.getName().equals("Pantalón") &amp;&amp; 
+        p.getStock() == 50 &amp;&amp;
+        p.getMinimumStockLevel() == 10
+    ));
+}</code></pre>
+</section>
+<section class="test-cases">
+<h3>4. Prueba con doThrow (para excepciones)</h3>
+<pre><code class="java">@Test
+void whenRepositoryFails_ShouldThrowInventoryException() {
+    // Arrange
+    ProductRepository mockRepo = mock(ProductRepository.class);
+    ProductService service = new ProductService(mockRepo);
+    
+    // Configurar con doThrow
+    doThrow(new DatabaseException("Connection failed"))
+        .when(mockRepo).save(any(Product.class));
+    
+    // Act &amp; Assert
+    assertThrows(InventoryException.class, () -&gt; {
+        service.createProduct("Bufanda", 20, 5);
+    });
+}</code></pre>
+</section>
+<section class="test-cases">
+<h3>5. Prueba con doReturn-when</h3>
+<pre><code class="java">@Test
+void whenProductNotFound_ShouldReturnNull() {
+    // Arrange
+    ProductRepository mockRepo = mock(ProductRepository.class);
+    ProductService service = new ProductService(mockRepo);
+    
+    // Configurar con doReturn-when
+    doReturn(null).when(mockRepo).findByName("Producto Inexistente");
+    
+    // Act
+    Product result = service.getProductInfo("Producto Inexistente");
+    
+    // Assert
+    assertNull(result);
+}</code></pre>
+</section>
+<section class="test-cases">
+<h3>6. Prueba con BDD (given-will-when-then)</h3>
+<pre><code class="java">@Test
+void whenCheckingStockLevel_ShouldReturnCorrectStatus() {
+    // Arrange
+    ProductRepository mockRepo = mock(ProductRepository.class);
+    StockService service = new StockService(mockRepo);
+    
+    Product testProduct = new Product("Gorra", 8, 10);
+    
+    // Configuración BDD
+    given(mockRepo.findByName("Gorra")).willReturn(testProduct);
+    
+    // Act
+    StockStatus status = service.checkStockStatus("Gorra");
+    
+    // Assert
+    then(mockRepo).should().findByName("Gorra");
+    assertEquals(StockStatus.LOW, status);
+}</code></pre>
+</section>
+<section class="test-cases">
+<h3>7. Prueba con Spy</h3>
+<pre><code class="java">@Test
+void whenUpdatingProduct_ShouldLogTheChange() {
+    // Arrange
+    ProductRepository realRepo = new InMemoryProductRepository();
+    ProductRepository spyRepo = spy(realRepo);
+    AuditLogger mockLogger = mock(AuditLogger.class);
+    ProductService service = new ProductService(spyRepo, mockLogger);
+    
+    Product testProduct = new Product("Cinturón", 15, 5);
+    realRepo.save(testProduct);
+    
+    // Configurar spy
+    doNothing().when(spyRepo).update(any(Product.class));
+    
+    // Act
+    service.updateProductStock("Cinturón", 20);
+    
+    // Assert
+    verify(mockLogger).logChange(eq("Cinturón"), anyString());
+    verify(spyRepo).update(argThat(p -&gt; p.getStock() == 20));
+}</code></pre>
+</section>
+</div>
+</body>
+</html>

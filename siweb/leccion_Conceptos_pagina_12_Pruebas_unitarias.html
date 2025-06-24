@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Pruebas_unitarias</title>
+</head>
+<body>
+<h1>Pruebas Unitarias</h1>
+<h2>Mejores Prácticas en Pruebas Unitarias</h2>
+<h3>1. Nombrado de la Prueba</h3>
+<p>El nombre de la prueba debe ser descriptivo y seguir un patrón que indique qué se está probando y cuál es el resultado esperado. Un formato común es:</p>
+<pre><code>[NombreDelMétodo]_[CondiciónDePrueba]_[ResultadoEsperado]</code></pre>
+<h3>2. Estructura de la Prueba: Arrange-Act-Assert</h3>
+<ul>
+<li><strong>Arrange</strong>: Preparar el entorno de prueba (objetos, datos de entrada, etc.).</li>
+<li><strong>Act</strong>: Ejecutar el método o funcionalidad que se está probando.</li>
+<li><strong>Assert</strong>: Verificar que el resultado obtenido es el esperado.</li>
+</ul>
+<h3>3. Principios FIRST</h3>
+<ul>
+<li><strong>Fast</strong>: Las pruebas deben ejecutarse rápidamente.</li>
+<li><strong>Independent</strong>: Las pruebas no deben depender de otras pruebas.</li>
+<li><strong>Repeatable</strong>: Las pruebas deben producir el mismo resultado en cualquier entorno.</li>
+<li><strong>Self-Validating</strong>: Las pruebas deben determinar automáticamente si pasan o fallan.</li>
+<li><strong>Timely</strong>: Las pruebas deben escribirse antes o durante el desarrollo del código.</li>
+</ul>
+<h3>4. Un ASSERT por Prueba</h3>
+<p>Cada prueba debe verificar una única condición. Esto hace que las pruebas sean más claras y fáciles de mantener.</p>
+<h3>5. Scope de la Prueba</h3>
+<p>Las pruebas unitarias deben probar solo métodos públicos, ya que los métodos privados son detalles de implementación que no deben exponerse directamente.</p>
+<h2>Ejemplo en Java con JUnit</h2>
+<h3>Código del Servicio de Descuentos</h3>
+<pre><code>public class DiscountService {
+    public double applyDiscount(double price, double percentage) {
+        if (price &lt;= 0 || percentage &lt; 0) {
+            throw new IllegalArgumentException("Price and percentage must be positive.");
+        }
+        return price * (1 - percentage / 100);
+    }
+}</code></pre>
+<h3>Prueba Unitaria con Mejores Prácticas</h3>
+<pre><code>import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class DiscountServiceTest {
+
+    @Test
+    void applyDiscount_ValidPriceAndPercentage_ReturnsDiscountedPrice() {
+        // Arrange
+        DiscountService discountService = new DiscountService();
+        double price = 100;
+        double percentage = 10;
+
+        // Act
+        double discountedPrice = discountService.applyDiscount(price, percentage);
+
+        // Assert
+        assertEquals(90, discountedPrice, 0.01, "The discounted price should be 90.");
+    }
+
+    @Test
+    void applyDiscount_ZeroPrice_ThrowsIllegalArgumentException() {
+        // Arrange
+        DiscountService discountService = new DiscountService();
+        double price = 0;
+        double percentage = 10;
+
+        // Act &amp; Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -&gt; {
+            discountService.applyDiscount(price, percentage);
+        });
+
+        assertEquals("Price and percentage must be positive.", exception.getMessage());
+    }
+
+    @Test
+    void applyDiscount_NegativePercentage_ThrowsIllegalArgumentException() {
+        // Arrange
+        DiscountService discountService = new DiscountService();
+        double price = 100;
+        double percentage = -10;
+
+        // Act &amp; Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -&gt; {
+            discountService.applyDiscount(price, percentage);
+        });
+
+        assertEquals("Price and percentage must be positive.", exception.getMessage());
+    }
+}</code></pre>
+<h2>Explicación del Código de Prueba</h2>
+<h3>1. Nombrado de la Prueba</h3>
+<ul>
+<li><code>applyDiscount_ValidPriceAndPercentage_ReturnsDiscountedPrice</code>: Prueba que el método <code>applyDiscount</code> devuelve el precio correcto con un descuento válido.</li>
+<li><code>applyDiscount_ZeroPrice_ThrowsIllegalArgumentException</code>: Prueba que el método lanza una excepción cuando el precio es cero.</li>
+<li><code>applyDiscount_NegativePercentage_ThrowsIllegalArgumentException</code>: Prueba que el método lanza una excepción cuando el porcentaje es negativo.</li>
+</ul>
+<h3>2. Estructura Arrange-Act-Assert</h3>
+<ul>
+<li><strong>Arrange</strong>: Se preparan los datos de entrada y se instancia el objeto <code>DiscountService</code>.</li>
+<li><strong>Act</strong>: Se ejecuta el método <code>applyDiscount</code>.</li>
+<li><strong>Assert</strong>: Se verifica el resultado esperado (ya sea un valor o una excepción).</li>
+</ul>
+<h3>3. Principios FIRST</h3>
+<ul>
+<li><strong>Fast</strong>: Las pruebas se ejecutan rápidamente, ya que no dependen de recursos externos.</li>
+<li><strong>Independent</strong>: Cada prueba es independiente y no depende del resultado de otras pruebas.</li>
+<li><strong>Repeatable</strong>: Las pruebas producen el mismo resultado en cualquier entorno.</li>
+<li><strong>Self-Validating</strong>: Las pruebas determinan automáticamente si pasan o fallan mediante aserciones.</li>
+<li><strong>Timely</strong>: Las pruebas se escriben junto con el código que están probando.</li>
+</ul>
+<h3>4. Un ASSERT por Prueba</h3>
+<p>Cada prueba tiene un único <code>assert</code> para verificar una condición específica. Esto hace que las pruebas sean más claras y fáciles de mantener.</p>
+<h3>5. Scope de la Prueba</h3>
+<p>Las pruebas solo verifican métodos públicos (<code>applyDiscount</code>). No se prueban métodos privados, ya que son detalles de implementación.</p>
+<h2>Conclusión</h2>
+<p>Este ejemplo en Java con JUnit muestra cómo aplicar las mejores prácticas en pruebas unitarias:</p>
+<ol>
+<li><strong>Nombrado descriptivo</strong>: Los nombres de las pruebas indican claramente qué se está probando.</li>
+<li><strong>Estructura AAA</strong>: Las pruebas siguen el patrón Arrange-Act-Assert.</li>
+<li><strong>Principios FIRST</strong>: Las pruebas son rápidas, independientes, repetibles, autovalidables y oportunas.</li>
+<li><strong>Un ASSERT por prueba</strong>: Cada prueba verifica una única condición.</li>
+<li><strong>Scope de la prueba</strong>: Solo se prueban métodos públicos.</li>
+</ol>
+<p>Estas prácticas garantizan que las pruebas sean claras, mantenibles y confiables, lo que es esencial para un desarrollo de software robusto y de alta calidad.</p>
+</body>
+</html>

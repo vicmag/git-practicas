@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Escenario_1_Fase_Verde</title>
+</head>
+<body>
+<h1>Prueba Unitaria - Escenario 1 (Fase Green TDD)</h1>
+<p>Hemos implementado la lógica necesaria en el servicio de dominio para que la prueba unitaria existente pase. Ahora estamos en la fase <strong>Green</strong> de <strong>TDD</strong>.</p>
+<h2>Estructura de Carpetas</h2>
+<pre><code>
+src/
+├── main/
+│   ├── java/
+│   │   └── com/
+│   │       └── store/
+│   │           ├── application/          # Capa de aplicación
+│   │           │   └── ProductController.java  # Controlador REST (no incluido en el ejemplo)
+│   │           ├── domain/               # Capa de dominio
+│   │           │   ├── model/
+│   │           │   │   └── Product.java  # Entidad de dominio
+│   │           │   ├── service/
+│   │           │   │   └── ProductService.java  # Servicio de dominio
+│   │           │   └── port/
+│   │           │       ├── ProductRepository.java  # Puerto (interfaz de repositorio)
+│   │           │       └── AlertNotifier.java     # Interfaz para notificaciones
+│   │           └── infrastructure/       # Capa de infraestructura
+│   │               └── persistence/
+│   │                   └── ProductRepositoryImpl.java  # Implementación del repositorio (no incluido en el ejemplo)
+│   ├── resources/
+│   │   └── application.properties        # Configuración de la aplicación
+├── test/
+│   ├── java/
+│   │   └── com/
+│   │       └── store/
+│   │           └── domain/
+│   │               └── service/
+│   │                   └── ProductServiceTest.java  # Prueba unitaria
+│   └── resources/
+│       └── application-test.properties   # Configuración para pruebas
+    </code></pre>
+<h2>Implementación del Servicio de Dominio (Fase Green)</h2>
+<pre><code>
+// ProductService.java (Servicio de Dominio - Actualizado)
+package com.store.domain.service;
+
+import com.store.domain.model.Product;
+import com.store.domain.port.ProductRepository;
+import com.store.domain.port.AlertNotifier;
+
+public class ProductService {
+    private final ProductRepository productRepository;
+    private final AlertNotifier alertNotifier;
+
+    public ProductService(ProductRepository productRepository, AlertNotifier alertNotifier) {
+        this.productRepository = productRepository;
+        this.alertNotifier = alertNotifier;
+    }
+
+    public void setMinimumStockLevel(Product product, int minimumStockLevel) {
+        validateMinimumStockLevel(minimumStockLevel);
+        product.setMinimumStockLevel(minimumStockLevel);
+        productRepository.save(product);
+    }
+
+    public void checkStockLevel(Product product) {
+        if (product.getStock() &lt;= product.getMinimumStockLevel()) {
+            alertNotifier.notifyLowStock(product);
+        }
+    }
+
+    private void validateMinimumStockLevel(int minimumStockLevel) {
+        if (minimumStockLevel &lt;= 0) {
+            throw new IllegalArgumentException("El nivel mínimo de stock debe ser mayor que cero.");
+        }
+    }
+}
+    </code></pre>
+<h2>Explicación de la Implementación</h2>
+<ul>
+<li><strong>Método `checkStockLevel`</strong>:
+<ul>
+<li>Se implementó la lógica para verificar si el stock del producto está por debajo del nivel mínimo.</li>
+<li>Si el stock es menor o igual al nivel mínimo, se llama al método `notifyLowStock` de `AlertNotifier` para generar una alerta.</li>
+</ul>
+</li>
+<li><strong>Validación de Nivel Mínimo</strong>:
+<ul>
+<li>Se mantuvo la validación en `setMinimumStockLevel` para asegurar que el nivel mínimo sea mayor que cero.</li>
+</ul>
+</li>
+</ul>
+<h2>Pruebas Unitarias (Fase Green)</h2>
+<pre><code>
+package com.store.domain.service;
+
+import com.store.domain.model.Product;
+import com.store.domain.port.ProductRepository;
+import com.store.domain.port.AlertNotifier;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class ProductServiceTest {
+
+    @Test
+    void whenSetMinimumStockLevel_thenLevelIsSaved() {
+        // Arrange
+        ProductRepository productRepository = mock(ProductRepository.class);
+        AlertNotifier alertNotifier = mock(AlertNotifier.class);
+        ProductService productService = new ProductService(productRepository, alertNotifier);
+        Product product = new Product("Camiseta Azul", 20);
+        int newMinimumStockLevel = 15;
+
+        // Act
+        productService.setMinimumStockLevel(product, newMinimumStockLevel);
+
+        // Assert
+        verify(productRepository).save(product);
+        assertEquals(newMinimumStockLevel, product.getMinimumStockLevel());
+    }
+
+    @Test
+    void whenSetMinimumStockLevelWithInvalidValue_thenThrowException() {
+        // Arrange
+        ProductRepository productRepository = mock(ProductRepository.class);
+        AlertNotifier alertNotifier = mock(AlertNotifier.class);
+        ProductService productService = new ProductService(productRepository, alertNotifier);
+        Product product = new Product("Camiseta Azul", 20);
+        int invalidMinimumStockLevel = 0;
+
+        // Act &amp; Assert
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -&gt; productService.setMinimumStockLevel(product, invalidMinimumStockLevel)
+        );
+        assertEquals("El nivel mínimo de stock debe ser mayor que cero.", exception.getMessage());
+        verify(productRepository, never()).save(product);
+    }
+
+    @Test
+    void whenStockIsBelowMinimumLevel_thenAlertIsTriggered() {
+        // Arrange
+        ProductRepository productRepository = mock(ProductRepository.class);
+        AlertNotifier alertNotifier = mock(AlertNotifier.class);
+        ProductService productService = new ProductService(productRepository, alertNotifier);
+        Product product = new Product("Camiseta Azul", 20);
+        product.setMinimumStockLevel(10); // Nivel mínimo configurado
+
+        // Act
+        product.setStock(5); // Reducir el stock por debajo del nivel mínimo
+        productService.checkStockLevel(product);
+
+        // Assert
+        verify(alertNotifier).notifyLowStock(product);
+    }
+}
+    </code></pre>
+<h2>Explicación de las Pruebas</h2>
+<ul>
+<li><strong>Prueba `whenStockIsBelowMinimumLevel_thenAlertIsTriggered`</strong>:
+<ul>
+<li>Verifica que se genera una alerta cuando el stock está por debajo del nivel mínimo.</li>
+<li>Ahora pasa porque la lógica de `checkStockLevel` está implementada.</li>
+</ul>
+</li>
+</ul>
+<h2>Fase Green de TDD</h2>
+<p>En esta fase, la prueba unitaria pasa porque la implementación de `checkStockLevel` en `ProductService` está completa. La lógica de alertas se ha implementado correctamente, y la prueba verifica que el comportamiento es el esperado.</p>
+<h2>Próximos Pasos</h2>
+<p>Ahora que la prueba pasa, puedes continuar con la fase <strong>Refactor</strong> para mejorar el código sin cambiar su comportamiento. Algunas sugerencias para refactorizar incluyen:</p>
+<ol>
+<li>Extraer la lógica de validación del nivel mínimo de stock en una clase separada si es necesario.</li>
+<li>Mejorar la claridad del código en `ProductService` y `Product`.</li>
+<li>Añadir más pruebas unitarias para cubrir casos adicionales, como stock igual al nivel mínimo.</li>
+</ol>
+</body>
+</html>

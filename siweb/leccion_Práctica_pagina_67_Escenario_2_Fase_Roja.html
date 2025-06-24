@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Escenario_2_Fase_Roja</title>
+</head>
+<body>
+<h1>Prueba Unitaria - Escenario de Prueba 2 (Fase Red TDD)</h1>
+<p>Esta prueba unitaria corresponde al Escenario de Prueba 2: Configuración de Nivel Mínimo. Estamos en la fase <strong>Red</strong> de <strong>TDD</strong>, donde la prueba falla porque la implementación aún no existe.</p>
+<h2>Estructura de Carpetas</h2>
+<pre><code>
+src/
+├── main/
+│   ├── java/
+│   │   └── com/
+│   │       └── store/
+│   │           ├── application/          # Capa de aplicación
+│   │           │   └── ProductController.java  # Controlador REST (no incluido en el ejemplo)
+│   │           ├── domain/               # Capa de dominio
+│   │           │   ├── model/
+│   │           │   │   └── Product.java  # Entidad de dominio
+│   │           │   ├── service/
+│   │           │   │   └── ProductService.java  # Servicio de dominio
+│   │           │   └── port/
+│   │           │       └── ProductRepository.java  # Puerto (interfaz de repositorio)
+│   │           └── infrastructure/       # Capa de infraestructura
+│   │               └── persistence/
+│   │                   └── ProductRepositoryImpl.java  # Implementación del repositorio (no incluido en el ejemplo)
+│   ├── resources/
+│   │   └── application.properties        # Configuración de la aplicación
+├── test/
+│   ├── java/
+│   │   └── com/
+│   │       └── store/
+│   │           └── domain/
+│   │               └── service/
+│   │                   └── ProductServiceTest.java  # Prueba unitaria
+│   └── resources/
+│       └── application-test.properties   # Configuración para pruebas
+    </code></pre>
+<h2>Código de la Prueba Unitaria</h2>
+<p><button class="copy-button">Copiar Código de Prueba</button></p>
+<pre id="test-code"><code>
+package com.store.domain.service;
+
+import com.store.domain.model.Product;
+import com.store.domain.port.ProductRepository;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class ProductServiceTest {
+
+    @Test
+    void whenSetMinimumStockLevel_thenLevelIsSaved() {
+        // Arrange
+        ProductRepository productRepository = mock(ProductRepository.class);
+        ProductService productService = new ProductService(productRepository);
+        Product product = new Product("Camiseta Azul", 20);
+        int newMinimumStockLevel = 15;
+
+        // Act
+        productService.setMinimumStockLevel(product, newMinimumStockLevel);
+
+        // Assert
+        verify(productRepository).save(product);
+        assertEquals(newMinimumStockLevel, product.getMinimumStockLevel());
+    }
+}
+    </code></pre>
+<h2>Interfaces y Clases del Dominio</h2>
+<p><button class="copy-button">Copiar Interfaces y Clases</button></p>
+<pre id="interface-code"><code>
+// Product.java (Modelo de Dominio)
+package com.store.domain.model;
+
+public class Product {
+    private String name;
+    private int stock;
+    private int minimumStockLevel;
+
+    public Product(String name, int stock) {
+        this.name = name;
+        this.stock = stock;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public int getMinimumStockLevel() {
+        return minimumStockLevel;
+    }
+
+    public void setMinimumStockLevel(int minimumStockLevel) {
+        this.minimumStockLevel = minimumStockLevel;
+    }
+}
+
+// ProductRepository.java (Puerto de Dominio)
+package com.store.domain.port;
+
+import com.store.domain.model.Product;
+
+public interface ProductRepository {
+    void save(Product product);
+}
+
+// ProductService.java (Servicio de Dominio)
+package com.store.domain.service;
+
+import com.store.domain.model.Product;
+import com.store.domain.port.ProductRepository;
+
+public class ProductService {
+    private final ProductRepository productRepository;
+
+    public ProductService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
+
+    public void setMinimumStockLevel(Product product, int minimumStockLevel) {
+        // Implementación pendiente (Fase Red de TDD)
+    }
+}
+    </code></pre>
+<h2>Uso de SOLID</h2>
+<ul>
+<li><strong>Single Responsibility Principle (SRP)</strong>: Cada clase tiene una única responsabilidad. Por ejemplo, `ProductService` se encarga de la lógica de negocio relacionada con el stock.</li>
+<li><strong>Open/Closed Principle (OCP)</strong>: El diseño permite extender el comportamiento (por ejemplo, añadir nuevos tipos de notificaciones) sin modificar el código existente.</li>
+<li><strong>Liskov Substitution Principle (LSP)</strong>: Las implementaciones de `ProductRepository` pueden ser sustituidas sin afectar el comportamiento del sistema.</li>
+<li><strong>Interface Segregation Principle (ISP)</strong>: `ProductRepository` define una interfaz específica para guardar productos, sin imponer métodos innecesarios.</li>
+<li><strong>Dependency Inversion Principle (DIP)</strong>: `ProductService` depende de la abstracción `ProductRepository`, no de una implementación concreta.</li>
+</ul>
+<h2>Fase Red de TDD</h2>
+<p>En esta fase, la prueba unitaria está diseñada para fallar porque la implementación de `setMinimumStockLevel` en `ProductService` aún no existe. Esto es intencional en TDD, ya que primero escribimos la prueba (que falla) y luego implementamos el código para hacerla pasar.</p>
+<p>
+<script>
+        function copyCode(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const textArea = document.createElement("textarea");
+            textArea.value = codeElement.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('Código copiado al portapapeles');
+        }
+    </script>
+</p>
+</body>
+</html>

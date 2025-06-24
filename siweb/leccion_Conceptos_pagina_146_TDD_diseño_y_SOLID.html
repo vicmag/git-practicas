@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TDD_diseño_y_SOLID</title>
+</head>
+<body>
+<div class="tdd-solid-relationship">
+<h2>TDD y su Impacto en el Diseño SOLID</h2>
+<section class="introduction">
+<p>El Desarrollo Guiado por Pruebas (TDD) no solo mejora la calidad del código, sino que también promueve activamente la aplicación de los principios SOLID. Veamos cómo cada aspecto de TDD se relaciona con estos principios fundamentales del diseño orientado a objetos.</p>
+</section>
+<section class="solid-principles">
+<div class="principle">
+<h3>1. Single Responsibility Principle (SRP)</h3>
+<div class="tdd-connection">
+<h4>Conexión con TDD:</h4>
+<p>TDD nos obliga a pensar en pruebas unitarias enfocadas, lo que naturalmente lleva a clases con una sola responsabilidad.</p>
+<div class="example">
+<h5>Ejemplo en el DiscountService:</h5>
+<pre><code class="java">public class DiscountService {
+    // Solo se encarga de aplicar descuentos
+    public double applyDiscount(double price, double percentage) {
+        return price * (1 - percentage / 100);
+    }
+}</code></pre>
+<p>La prueba unitaria enfocada valida que esta clase solo hace una cosa: calcular descuentos.</p>
+</div>
+</div>
+</div>
+<div class="principle">
+<h3>2. Open/Closed Principle (OCP)</h3>
+<div class="tdd-connection">
+<h4>Conexión con TDD:</h4>
+<p>La fase de refactorización en TDD nos lleva a diseñar código abierto para extensión pero cerrado para modificación.</p>
+<div class="example">
+<h5>Ejemplo de extensión:</h5>
+<pre><code class="java">public interface DiscountStrategy {
+    double apply(double price);
+}
+
+public class PercentageDiscount implements DiscountStrategy {
+    private double percentage;
+    
+    public PercentageDiscount(double percentage) {
+        this.percentage = percentage;
+    }
+    
+    @Override
+    public double apply(double price) {
+        return price * (1 - percentage / 100);
+    }
+}
+
+// Nueva estrategia sin modificar el código existente
+public class FixedAmountDiscount implements DiscountStrategy {
+    private double amount;
+    
+    public FixedAmountDiscount(double amount) {
+        this.amount = amount;
+    }
+    
+    @Override
+    public double apply(double price) {
+        return price - amount;
+    }
+}</code></pre>
+<p>Las pruebas guían la creación de esta estructura extensible.</p>
+</div>
+</div>
+</div>
+<div class="principle">
+<h3>3. Liskov Substitution Principle (LSP)</h3>
+<div class="tdd-connection">
+<h4>Conexión con TDD:</h4>
+<p>Las pruebas unitarias actúan como contratos que deben cumplir todas las implementaciones.</p>
+<div class="example">
+<h5>Pruebas para DiscountStrategy:</h5>
+<pre><code class="java">@Test
+void percentageDiscount_shouldApplyCorrectDiscount() {
+    DiscountStrategy strategy = new PercentageDiscount(10);
+    assertEquals(90, strategy.apply(100), 0.01);
+}
+
+@Test
+void fixedAmountDiscount_shouldApplyCorrectDiscount() {
+    DiscountStrategy strategy = new FixedAmountDiscount(15);
+    assertEquals(85, strategy.apply(100), 0.01);
+}</code></pre>
+<p>Ambas implementaciones pueden sustituirse manteniendo el comportamiento esperado.</p>
+</div>
+</div>
+</div>
+<div class="principle">
+<h3>4. Interface Segregation Principle (ISP)</h3>
+<div class="tdd-connection">
+<h4>Conexión con TDD:</h4>
+<p>Al escribir pruebas primero, definimos interfaces específicas para cada cliente.</p>
+<div class="example">
+<h5>Interfaces específicas:</h5>
+<pre><code class="java">public interface DiscountApplier {
+    double applyDiscount(double price);
+}
+
+public interface DiscountValidator {
+    boolean isValid(double price, double percentage);
+}
+
+// En lugar de una interfaz grande:
+// public interface DiscountService {
+//    double applyDiscount(...);
+//    boolean validate(...);
+//    // otros métodos no relacionados
+// }</code></pre>
+<p>TDD nos lleva naturalmente a interfaces más pequeñas y enfocadas.</p>
+</div>
+</div>
+</div>
+<div class="principle">
+<h3>5. Dependency Inversion Principle (DIP)</h3>
+<div class="tdd-connection">
+<h4>Conexión con TDD:</h4>
+<p>Las pruebas unitarias requieren inyección de dependencias y uso de mocks, promoviendo este principio.</p>
+<div class="example">
+<h5>Ejemplo con inyección:</h5>
+<pre><code class="java">public class OrderProcessor {
+    private final DiscountApplier discountApplier;
+    
+    public OrderProcessor(DiscountApplier discountApplier) {
+        this.discountApplier = discountApplier;
+    }
+    
+    public double processOrder(Order order) {
+        return discountApplier.applyDiscount(order.getTotal());
+    }
+}
+
+// Prueba unitaria
+@Test
+void processOrder_shouldApplyDiscount() {
+    DiscountApplier mockApplier = mock(DiscountApplier.class);
+    when(mockApplier.applyDiscount(anyDouble())).thenReturn(90.0);
+    
+    OrderProcessor processor = new OrderProcessor(mockApplier);
+    Order testOrder = new Order(100.0);
+    
+    assertEquals(90.0, processor.processOrder(testOrder), 0.01);
+}</code></pre>
+<p>El diseño permite sustituir fácilmente la implementación real por un mock para pruebas.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="conclusion">
+<h3>Conclusión: TDD como Catalizador de SOLID</h3>
+<p>La práctica de TDD no solo mejora la calidad del código mediante pruebas, sino que también actúa como una fuerza guía que nos lleva naturalmente hacia diseños que cumplen con los principios SOLID:</p>
+<ul>
+<li><strong>Pruebas enfocadas</strong> → Single Responsibility</li>
+<li><strong>Refactorización constante</strong> → Open/Closed</li>
+<li><strong>Contratos de prueba</strong> → Liskov Substitution</li>
+<li><strong>Necesidad de mockear</strong> → Interface Segregation</li>
+<li><strong>Aislamiento para pruebas</strong> → Dependency Inversion</li>
+</ul>
+<p>Al adoptar TDD, los desarrolladores internalizan estos principios de diseño casi sin esfuerzo, creando sistemas más mantenibles y extensibles por naturaleza.</p>
+</section>
+</div>
+</body>
+</html>

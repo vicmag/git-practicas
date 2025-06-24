@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Stubs._Variantes</title>
+</head>
+<body>
+<div class="mockito-comparison">
+<h2>Comparación de Notaciones para Stubs en Mockito</h2>
+<section class="notations-comparison">
+<h3>Diferencias Clave entre when(), doReturn() y given()</h3>
+<table>
+<thead>
+<tr>
+<th>Notación</th>
+<th>Sintaxis</th>
+<th>Ventajas</th>
+<th>Limitaciones</th>
+<th>Casos de Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>when()</strong></td>
+<td><code>when(mock.metodo()).thenReturn(valor)</code></td>
+<td>
+<ul>
+<li>Sintaxis más natural</li>
+<li>Fácil de leer</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Llama realmente al método</li>
+<li>Problemas con métodos void</li>
+</ul>
+</td>
+<td>Métodos que devuelven valores y no causan efectos secundarios</td>
+</tr>
+<tr>
+<td><strong>doReturn()</strong></td>
+<td><code>doReturn(valor).when(mock).metodo()</code></td>
+<td>
+<ul>
+<li>No llama al método real</li>
+<li>Funciona con métodos void</li>
+<li>Mayor control</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Sintaxis menos intuitiva</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Métodos void</li>
+<li>Spies</li>
+<li>Cuando no se debe ejecutar el método real</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><strong>given()</strong> (BDDMockito)</td>
+<td><code>given(mock.metodo()).willReturn(valor)</code></td>
+<td>
+<ul>
+<li>Estilo BDD (Given-When-Then)</li>
+<li>Más legible en contextos BDD</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Requiere importar BDDMockito</li>
+<li>Mismos problemas que when()</li>
+</ul>
+</td>
+<td>Cuando se sigue metodología BDD o se busca mejor legibilidad</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="examples">
+<h3>Ejemplos Prácticos con el Escenario de Fase Roja</h3>
+<div class="example">
+<h4>1. Notación <strong>when().thenReturn()</strong></h4>
+<button class="copy-button">Copiar</button>
+<pre id="when-example"><code class="java">@Test
+void incrementStock_ValidIncrement_WhenNotation_ShouldUpdateProductStock() {
+    // Arrange
+    String productName = "Camiseta Azul";
+    int initialStock = 10;
+    int increment = 5;
+    Product product = new Product(productName, initialStock);
+    
+    ProductService productService = new ProductService(productRepository);
+    when(productRepository.findByName(productName)).thenReturn(product);
+    
+    // Act
+    productService.incrementStock(productName, increment);
+    
+    // Assert
+    assertEquals(initialStock + increment, product.getStock());
+    verify(productRepository).findByName(productName);
+    verify(productRepository).save(product);
+}</code></pre>
+</div>
+<div class="example">
+<h4>2. Notación <strong>doReturn().when()</strong></h4>
+<button class="copy-button">Copiar</button>
+<pre id="doreturn-example"><code class="java">@Test
+void incrementStock_ValidIncrement_DoReturnNotation_ShouldUpdateProductStock() {
+    // Arrange
+    String productName = "Camiseta Azul";
+    int initialStock = 10;
+    int increment = 5;
+    Product product = new Product(productName, initialStock);
+    
+    ProductService productService = new ProductService(productRepository);
+    doReturn(product).when(productRepository).findByName(productName);
+    
+    // Act
+    productService.incrementStock(productName, increment);
+    
+    // Assert
+    assertEquals(initialStock + increment, product.getStock());
+    verify(productRepository).findByName(productName);
+    verify(productRepository).save(product);
+}</code></pre>
+</div>
+<div class="example">
+<h4>3. Notación <strong>given().willReturn()</strong> (BDD)</h4>
+<button class="copy-button">Copiar</button>
+<pre id="given-example"><code class="java">@Test
+void incrementStock_ValidIncrement_GivenNotation_ShouldUpdateProductStock() {
+    // Arrange
+    String productName = "Camiseta Azul";
+    int initialStock = 10;
+    int increment = 5;
+    Product product = new Product(productName, initialStock);
+    
+    ProductService productService = new ProductService(productRepository);
+    given(productRepository.findByName(productName)).willReturn(product);
+    
+    // Act
+    productService.incrementStock(productName, increment);
+    
+    // Assert
+    assertEquals(initialStock + increment, product.getStock());
+    then(productRepository).should().findByName(productName);
+    then(productRepository).should().save(product);
+}</code></pre>
+</div>
+</section>
+<section class="recommendations">
+<h3>Recomendaciones de Uso</h3>
+<ul>
+<li><strong>Prefiere doReturn().when()</strong> cuando:
+<ul>
+<li>Trabajes con spies</li>
+<li>No quieras que se ejecute el método real</li>
+<li>Configures mocks para métodos void</li>
+</ul>
+</li>
+<li><strong>Usa when().thenReturn()</strong> para:
+<ul>
+<li>Código más legible en casos simples</li>
+<li>Cuando no importa que se ejecute el método real momentáneamente</li>
+</ul>
+</li>
+<li><strong>Elige given().willReturn()</strong> cuando:
+<ul>
+<li>Sigas metodología BDD</li>
+<li>Busques consistencia en el estilo Given-When-Then</li>
+</ul>
+</li>
+</ul>
+</section>
+</div>
+<p>
+<script>
+    function copyCode(elementId) {
+      const codeElement = document.getElementById(elementId);
+      const range = document.createRange();
+      range.selectNode(codeElement);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+      document.execCommand('copy');
+      window.getSelection().removeAllRanges();
+
+      // Feedback visual
+      const button = event.target;
+      button.textContent = '¡Copiado!';
+      setTimeout(() => {
+        button.textContent = 'Copiar';
+      }, 2000);
+    }
+  </script>
+</p>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Escenario_1_Controladores_Nuevo_ciclo_RGR_Rojo</title>
+</head>
+<body>
+<h1>Pruebas Unitarias del Controlador - Nuevo Ciclo RGR (Fase Red)</h1>
+<p>En esta fase, se añade una nueva prueba unitaria para un escenario donde no se regresa el status <code>OK</code>, sino un error. Esto podría ocurrir si el producto no existe o si hay un problema al procesar la solicitud.</p>
+<h2>Prueba Unitaria (Fase Red)</h2>
+<pre><code>
+// ProductControllerTest.java (Nueva Prueba Unitária - Fase Red)
+package com.store.application;
+
+import com.store.domain.model.Product;
+import com.store.domain.service.ProductService;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class ProductControllerTest {
+
+    @Mock
+    private ProductService productService;
+
+    @InjectMocks
+    private ProductController productController;
+
+    @Test
+    void whenProductDoesNotExist_thenReturnNotFound() {
+        // Arrange
+        String productId = "999"; // ID de un producto que no existe
+        int minimumStockLevel = 10;
+
+        // Simular una excepción cuando el producto no existe
+        doThrow(new IllegalArgumentException("Producto no encontrado"))
+            .when(productService)
+            .setMinimumStockLevel(any(Product.class), eq(minimumStockLevel));
+
+        // Act
+        ResponseEntity response = productController.setMinimumStockLevel(productId, minimumStockLevel);
+
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+}
+    </code></pre>
+<h2>Explicación de la Prueba</h2>
+<ul>
+<li><strong>Escenario</strong>:
+<ul>
+<li>Se simula un caso en el que el producto no existe.</li>
+<li>El servicio lanza una excepción <code>IllegalArgumentException</code> con el mensaje "Producto no encontrado".</li>
+</ul>
+</li>
+<li><strong>Comportamiento Esperado</strong>:
+<ul>
+<li>El controlador debe capturar la excepción y devolver un código de estado <code>404 NOT FOUND</code>.</li>
+</ul>
+</li>
+<li><strong>Fase Red</strong>:
+<ul>
+<li>La prueba falla porque el controlador no maneja la excepción correctamente.</li>
+</ul>
+</li>
+</ul>
+<h2>Próximos Pasos</h2>
+<ol>
+<li><strong>Fase Green</strong>:
+<ul>
+<li>Implementar la lógica en el controlador para manejar la excepción y devolver el código de estado <code>404 NOT FOUND</code>.</li>
+</ul>
+</li>
+<li><strong>Fase Refactor</strong>:
+<ul>
+<li>Mejorar el código del controlador sin cambiar su comportamiento.</li>
+</ul>
+</li>
+</ol>
+</body>
+</html>

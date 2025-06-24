@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TDD_para_bugs</title>
+</head>
+<body>
+<h1>Escenario: Bug en la Validación de Stock Negativo</h1>
+<p>Supongamos que el área de QA reporta un bug: el sistema permite guardar productos con <strong>stock negativo</strong>, lo que genera inconsistencias en el inventario. Aplicaremos TDD para resolverlo.</p>
+<h2>Clases Involucradas</h2>
+<pre><code>
+// Product.java
+public class Product {
+    private String id;
+    private String name;
+    private int stock;
+
+    // Constructor, getters y setters
+}
+
+// ProductRepository.java (Interfaz)
+public interface ProductRepository {
+    void save(Product product);
+}
+
+// ProductService.java
+public class ProductService {
+    private ProductRepository productRepository;
+
+    public ProductService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
+
+    public void saveProduct(Product product) {
+        productRepository.save(product); // Bug: No valida stock negativo
+    }
+}
+    </code></pre>
+<h2>Paso 1: Reporte del Bug por QA</h2>
+<p>El área de QA identifica que un producto con stock negativo se guarda sin errores:</p>
+<pre><code>
+// Prueba manual de QA
+Product product = new Product("1", "Camiseta", -10); // Stock negativo
+productService.saveProduct(product); // Se guarda sin validación → BUG
+    </code></pre>
+<h2>Paso 2: Escribir una Prueba que Falla (Fase Red)</h2>
+<p>El desarrollador escribe una prueba unitaria que reproduce el bug:</p>
+<pre><code>
+// ProductServiceTest.java
+@Test
+void whenSaveProductWithNegativeStock_thenThrowException() {
+    // Configuración
+    ProductRepository mockRepository = Mockito.mock(ProductRepository.class);
+    ProductService productService = new ProductService(mockRepository);
+    Product invalidProduct = new Product("1", "Camiseta", -10); // Stock negativo
+
+    // Ejecutar y Verificar
+    assertThrows(IllegalArgumentException.class, () -&gt; {
+        productService.saveProduct(invalidProduct); // Debe lanzar excepción
+    });
+
+    // Verificar que NO se llamó a save (opcional)
+    verify(mockRepository, never()).save(any());
+}
+    </code></pre>
+<p>Resultado: La prueba <strong>falla</strong> porque el sistema permite guardar el producto sin validación.</p>
+<h2>Paso 3: Implementar la Corrección (Fase Green)</h2>
+<p>El desarrollador modifica el método <code>saveProduct</code> para validar el stock:</p>
+<pre><code>
+// ProductService.java (corregido)
+public void saveProduct(Product product) {
+    if (product.getStock() &lt; 0) {
+        throw new IllegalArgumentException("El stock no puede ser negativo");
+    }
+    productRepository.save(product);
+}
+    </code></pre>
+<p>Resultado: La prueba <strong>pasa</strong> porque ahora se valida el stock.</p>
+<h2>Paso 4: Refactorizar (Opcional)</h2>
+<p>Mejorar la claridad del código sin cambiar su comportamiento:</p>
+<pre><code>
+// ProductService.java (refactorizado)
+public void saveProduct(Product product) {
+    validateStock(product.getStock());
+    productRepository.save(product);
+}
+
+private void validateStock(int stock) {
+    if (stock &lt; 0) {
+        throw new IllegalArgumentException("El stock no puede ser negativo");
+    }
+}
+    </code></pre>
+<h2>Paso 5: Validación por QA</h2>
+<p>El área de QA ejecuta nuevamente la prueba manual y confirma que el bug está resuelto:</p>
+<pre><code>
+Product product = new Product("1", "Camiseta", -10);
+productService.saveProduct(product); // Ahora lanza IllegalArgumentException ✅
+    </code></pre>
+<h2>Conclusión</h2>
+<p>Gracias a TDD:</p>
+<ul>
+<li>El bug se reprodujo con una prueba unitaria <strong>(Red)</strong>.</li>
+<li>Se implementó la validación de stock <strong>(Green)</strong>.</li>
+<li>Se mejoró la legibilidad del código <strong>(Refactor)</strong>.</li>
+<li>QA verificó que el problema fue resuelto.</li>
+</ul>
+<p>Este flujo garantiza que el bug no vuelva a aparecer en el futuro, ya que la prueba unitaria actuará como un "guardian" del código.</p>
+</body>
+</html>

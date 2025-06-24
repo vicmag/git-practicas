@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Pruebas_unitarias_III</title>
+</head>
+<body>
+<div class="tutorial-container">
+<h2>Tutorial Completo de Pruebas Unitarias con JUnit y Mockito</h2>
+<!-- Sección existente sobre fundamentos -->
+<section class="advanced-mockito">
+<h3>4. Funcionalidades Avanzadas de Mockito</h3>
+<div class="spy-section">
+<h4>4.1 Uso de @Spy</h4>
+<p>Un <strong>spy</strong> es un objeto real que podemos "espiar" y configurar parcialmente:</p>
+<pre><code class="java">@ExtendWith(MockitoExtension.class)
+class ProductServiceSpyTest {
+
+    @Spy
+    private ProductRepository realRepository = new DatabaseProductRepository();
+    
+    @InjectMocks
+    private ProductService productService;
+    
+    @Test
+    void whenUpdateStock_thenVerifyRealMethodCalled() {
+        Product product = new Product("Camiseta", 10);
+        
+        // Configurar comportamiento específico para el spy
+        doReturn(product).when(realRepository).findByName("Camiseta");
+        
+        productService.updateStock("Camiseta", 5);
+        
+        // Verificar que se llamó al método real
+        verify(realRepository).save(any(Product.class));
+    }
+}</code></pre>
+<p><strong>Diferencia entre @Mock y @Spy:</strong></p>
+<ul>
+<li><strong>@Mock</strong>: Crea un mock completo, todos los métodos están "vacíos" a menos que se configuren</li>
+<li><strong>@Spy</strong>: Usa una instancia real, pero permite anular comportamientos específicos</li>
+</ul>
+</div>
+<div class="injectmocks-section">
+<h4>4.2 Uso de @InjectMocks</h4>
+<p><strong>@InjectMocks</strong> crea una instancia de la clase bajo prueba e inyecta automáticamente los mocks:</p>
+<pre><code class="java">@ExtendWith(MockitoExtension.class)
+class ProductServiceTest {
+
+    @Mock
+    private ProductRepository productRepository;
+    
+    @Mock
+    private StockAlertNotifier notifier;
+    
+    @InjectMocks
+    private ProductService productService; // Inyecta los mocks anteriores
+    
+    @Test
+    void whenProductStockLow_thenNotifyAlert() {
+        Product product = new Product("Camiseta", 5, 10);
+        when(productRepository.findByName("Camiseta")).thenReturn(product);
+        
+        productService.checkStock("Camiseta");
+        
+        verify(notifier).notifyLowStock(product);
+    }
+}</code></pre>
+</div>
+<div class="extension-section">
+<h4>4.3 Uso de @ExtendWith(MockitoExtension.class)</h4>
+<p>Esta anotación inicializa automáticamente los mocks y maneja la inyección:</p>
+<pre><code class="java">@ExtendWith(MockitoExtension.class) // Habilita Mockito para JUnit 5
+class OrderServiceTest {
+
+    @Mock
+    private PaymentGateway paymentGateway;
+    
+    @Mock
+    private OrderRepository orderRepository;
+    
+    @InjectMocks
+    private OrderService orderService;
+    
+    @Test
+    void processOrder_WithValidPayment_ShouldSaveOrder() {
+        Order order = new Order("123", 100.0);
+        when(paymentGateway.process(anyDouble())).thenReturn(true);
+        
+        orderService.process(order);
+        
+        verify(orderRepository).save(order);
+    }
+}</code></pre>
+<p><strong>Ventajas:</strong></p>
+<ul>
+<li>Elimina la necesidad de llamar manualmente a <code>MockitoAnnotations.openMocks(this)</code></li>
+<li>Integración más limpia con JUnit 5</li>
+<li>Inyección automática de dependencias</li>
+</ul>
+</div>
+</section>
+<!-- Resto del tutorial existente --></div>
+</body>
+</html>

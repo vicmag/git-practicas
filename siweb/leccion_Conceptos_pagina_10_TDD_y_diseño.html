@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TDD_y_diseño</title>
+</head>
+<body>
+<h1>TDD nos obliga a pensar sobre el diseño de los componentes</h1>
+<p>El Desarrollo Dirigido por Pruebas (<strong>TDD</strong>) nos obliga a diseñar nuestro código de manera estructurada y modular. Al seguir el ciclo <strong>Rojo - Verde - Refactor</strong>, logramos componentes bien definidos y fáciles de mantener.</p>
+<h2>1. Nos obliga a definir claramente la interfaz</h2>
+<p>Antes de escribir código, debemos pensar en cómo se usará el componente. Esto nos obliga a definir la interfaz de nuestra clase antes de su implementación.</p>
+<h3>Ejemplo:</h3>
+<p>Queremos diseñar un servicio para calcular descuentos en productos. Antes de implementarlo, escribimos una prueba:</p>
+<pre><code>
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+public class DiscountServiceTest {
+
+    @Test
+    public void testApplyDiscount() {
+        DiscountService discountService = new DiscountService();
+        double discountedPrice = discountService.applyDiscount(100, 10);
+        assertEquals(90, discountedPrice, 0.01);
+    }
+}
+    </code></pre>
+<p>Al escribir la prueba, definimos claramente que <code>DiscountService</code> debe tener un método <code>applyDiscount</code>, que reciba un precio y un porcentaje de descuento.</p>
+<h2>2. Nos ayuda a escribir código más modular</h2>
+<p>Las pruebas unitarias se centran en pequeñas partes del código, lo que nos obliga a diseñar componentes desacoplados y reutilizables.</p>
+<h3>Ejemplo:</h3>
+<p>En lugar de mezclar la lógica de descuentos dentro de la clase <code>Product</code>, creamos un servicio independiente:</p>
+<pre><code>
+public class DiscountService {
+    public double applyDiscount(double price, double percentage) {
+        return price * (1 - percentage / 100);
+    }
+}
+    </code></pre>
+<p>Este diseño modular permite que otros componentes reutilicen <code>DiscountService</code> sin depender de una implementación específica de <code>Product</code>.</p>
+<h2>3. Facilita el mantenimiento y la evolución del código</h2>
+<p>Las pruebas actúan como una documentación viviente. Si en el futuro cambiamos la implementación, las pruebas nos indicarán si seguimos cumpliendo con el diseño original.</p>
+<h3>Ejemplo:</h3>
+<p>Supongamos que ahora queremos que los descuentos se apliquen solo si el precio es mayor a 50. Podemos modificar la implementación sin temor a romper el sistema, porque las pruebas nos guiarán.</p>
+<pre><code>
+public class DiscountService {
+    public double applyDiscount(double price, double percentage) {
+        if (price &lt;= 50) {
+            return price; // No se aplica descuento
+        }
+        return price * (1 - percentage / 100);
+    }
+}
+    </code></pre>
+<p>Después del cambio, ejecutamos las pruebas. Si alguna falla, sabemos exactamente qué parte del código fue afectada.</p>
+<h2>Conclusión</h2>
+<p>TDD nos obliga a diseñar código más estructurado y mantenible. Nos ayuda a definir interfaces claras, escribir código modular y asegurar que los cambios futuros no rompan la funcionalidad existente.</p>
+</body>
+</html>

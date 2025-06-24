@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dev_vs_Tester</title>
+</head>
+<body>
+<h2>¿Por qué es difícil para un programador adoptar TDD?</h2>
+<p>Adoptar <strong>Test-Driven Development (TDD)</strong> no es simplemente una cuestión de aprender una técnica o una herramienta. En realidad, es un cambio profundo de <strong>mentalidad</strong>, <strong>hábitos</strong> y <strong>forma de diseñar software</strong>. Estas son las razones principales:</p>
+<h3>1. TDD cambia la forma en que piensas el desarrollo</h3>
+<p>En el flujo tradicional, primero se escribe el código y luego (si hay tiempo) se escriben pruebas. TDD invierte esto: primero se escribe el test (el fallo), y solo después el código que lo hace pasar.</p>
+<blockquote><em>Mental shift:</em> de <strong>¿cómo lo hago?</strong> a <strong>¿cómo sé que funciona?</strong></blockquote>
+<h3>2. TDD requiere pensar como un "tester" antes de ser programador</h3>
+<p>Aquí entra una diferencia psicológica clave:</p>
+<table border="1" cellspacing="0" cellpadding="5">
+<thead>
+<tr>
+<th>Rol</th>
+<th>Mentalidad</th>
+<th>Enfoque</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Programador</strong></td>
+<td>Creativa y constructiva</td>
+<td>Quiere hacer que el sistema funcione.</td>
+</tr>
+<tr>
+<td><strong>Tester</strong></td>
+<td>Crítica y destructiva</td>
+<td>Busca hacer fallar al sistema para encontrar errores.</td>
+</tr>
+</tbody>
+</table>
+<p>Cuando haces TDD, tienes que asumir el rol de tester antes del de programador:</p>
+<ul>
+<li>Primero escribes una prueba que falla.</li>
+<li>Te fuerzas a pensar <em>"¿qué pasaría si esto no funcionara?"</em></li>
+<li>Después, cambias de rol y <strong>construyes el código</strong> para que pase la prueba.</li>
+</ul>
+<blockquote>Esta <strong>doble mentalidad</strong> no es natural y cuesta adoptarla.</blockquote>
+<h3>3. TDD expone mal diseño</h3>
+<p>TDD te obliga a <strong>diseñar para ser testeable</strong>, lo que implica separar responsabilidades, inyectar dependencias, usar interfaces, etc. Si tu código es monolítico o acoplado, escribir pruebas primero se vuelve doloroso.</p>
+<p>Muchos desarrolladores confunden esa fricción con que “TDD es difícil”, cuando en realidad es su <strong>diseño el que es frágil</strong>.</p>
+<h3>4. TDD requiere disciplina y paciencia</h3>
+<p>Al principio parece que TDD <strong>ralentiza el desarrollo</strong>. No ver resultados visuales o funcionales rápidamente puede ser frustrante. La recompensa viene después: <em>refactorización sin miedo, menos bugs y documentación viva.</em></p>
+<h3>5. El entorno muchas veces no ayuda</h3>
+<p>Si el equipo no valora las pruebas, es difícil sostener la práctica. La presión por "sacar rápido algo que funcione" lleva a ignorar TDD. Y si nadie más escribe pruebas, <strong>hacerlo tú solo se siente inútil</strong> o incluso como “perder el tiempo”.</p>
+<h3>6. TDD requiere aprender herramientas nuevas</h3>
+<p>Frameworks de pruebas, mocking, fixtures, asserts, cobertura, etc. Muchas veces la curva de aprendizaje es empinada y frustrante.</p>
+<h2>¿Entonces... vale la pena?</h2>
+<p><strong>Sí, absolutamente.</strong> Aunque cuesta al principio, TDD cambia profundamente la forma de programar:</p>
+<ul>
+<li>Te fuerza a pensar en casos borde y errores desde el principio.</li>
+<li>Te da <strong>seguridad al refactorizar</strong>.</li>
+<li>Te permite trabajar con <strong>confianza y foco</strong>.</li>
+<li>Mejora el diseño: código más limpio, modular y flexible.</li>
+<li>Las pruebas se convierten en <strong>documentación ejecutable</strong>.</li>
+</ul>
+<h2>Conclusión</h2>
+<blockquote><strong>Adoptar TDD es difícil porque te obliga a pensar como <em>tester</em> antes de pensar como <em>desarrollador</em>.</strong></blockquote>
+<p>Y eso no es natural. Pero si logras mantener ese equilibrio mental entre <strong>destrucción crítica y construcción creativa</strong>, TDD se convierte en una de las herramientas más poderosas que puedes dominar.</p>
+</body>
+</html>
